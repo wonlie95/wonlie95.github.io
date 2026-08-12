@@ -128,7 +128,7 @@ for (const page of pages) {
   const date = page.created_time || new Date().toISOString();
   const body = await renderBlocks(await children(page.id), id);
   const frontMatter = [
-    '---', `title: ${escapeYaml(title)}`, `date: ${date}`, `updated: ${page.last_edited_time || date}`,
+    '---', `title: ${escapeYaml(title)}`, `date: ${date}`, `updated: ${page.last_edited_time || date}`, 'toc: true',
     ...(permanentPermalinks[id] ? [`permalink: ${permanentPermalinks[id]}`] : []),
     'categories:', ...(tags.length ? tags.map((tag) => `  - ${escapeYaml(tag)}`) : ['  - 未分类']),
     'tags:', ...(tags.length ? tags.map((tag) => `  - ${escapeYaml(tag)}`) : ['  - Notion']),
