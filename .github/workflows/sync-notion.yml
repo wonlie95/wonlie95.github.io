@@ -12,7 +12,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     env:
-      NOTION_TOKEN: ${{ secrets.NOTION_BLOG }}
+      NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,6 +31,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add source/_posts/notion source/images/notion
-          git diff --cached --quiet || git commit -m "Sync Notion articles"
-          git push
+          git add -A source/_posts/notion source/images/notion 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Sync Notion articles"
+            git push
+          fi
