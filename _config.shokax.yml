@@ -1,11 +1,11 @@
 # Project-level overrides for hexo-theme-shokax.
 alternate: When_Lie 的博客
-image_server: https://images.unsplash.com/photo-1462331940025-496dfbfc7564
+image_server: 
 # Use one predictable, full-width cover on the homepage.  This is the
 # classic ShokaX hero layout rather than a rotating image feed.
 homeConfig:
   gradient: false
-  fixedCover: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=85"
+  fixedCover: ""
 loader:
   start: false
   switch: false
@@ -20,16 +20,15 @@ aether:
     typographer: false
     quotes: "“”‘’"
 modules:
-  player: false
-  fireworks: false
+  player: true
+  fireworks: true
   visibilityListener: true
   tabs: true
-  quiz: false
+  quiz: true
 menu:
   home: / || home
   about: /about/ || user
   archives: /archives/ || list-alt
-  categories: /categories/ || th
   tags: /tags/ || tags
 social:
   github: https://github.com/wonlie95 || github || "#191717"
