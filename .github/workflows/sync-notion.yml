@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
 
 jobs:
@@ -35,4 +36,7 @@ jobs:
           if ! git diff --cached --quiet; then
             git commit -m "Sync Notion articles"
             git push
+            gh workflow run deploy-pages.yml --ref main
           fi
+        env:
+          GH_TOKEN: ${{ github.token }}
