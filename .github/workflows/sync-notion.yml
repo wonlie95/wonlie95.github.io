@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - run: npm install
       - run: node ./node_modules/hexo-theme-shokax/toolbox/hoistdep.mjs
       - name: Synchronize articles
         run: |
