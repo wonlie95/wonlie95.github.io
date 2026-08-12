@@ -3,42 +3,20 @@ title: ABOUT
 date: 2023-09-27T00:00:00.000Z
 updated: 2026-08-12T12:34:00.000Z
 permalink: about/
+audio: false
 ---
 
-<section class="about-music-player" aria-label="About 页面音乐播放器">
-  <p class="about-music-player__title">♪ 正在播放：キミの記憶 -Reload-</p>
-  <audio id="about-music" controls autoplay preload="auto">
-    <source src="/songs/about.mp3" type="audio/mpeg">
-    你的浏览器不支持音频播放。
-  </audio>
-  <p id="about-music-status" class="about-music-player__status" aria-live="polite"></p>
-</section>
-
-<style>
-  .about-music-player { margin: 0 0 2rem; padding: 1rem 1.2rem; border-radius: 12px; background: rgba(255,255,255,.72); box-shadow: 0 4px 18px rgba(0,0,0,.08); }
-  .about-music-player__title { margin: 0 0 .6rem; font-weight: 600; }
-  .about-music-player audio { display: block; width: 100%; }
-  .about-music-player__status { margin: .6rem 0 0; font-size: .86em; opacity: .7; }
-</style>
-
-<script>
-  (() => {
-    const startMusic = () => {
-      const player = document.getElementById('about-music');
-      const status = document.getElementById('about-music-status');
-      if (!player || player.dataset.started) return;
-      player.dataset.started = 'true';
-      player.volume = 0.55;
-      player.play().then(() => {
-        if (status) status.textContent = '音乐正在播放';
-      }).catch(() => {
-        if (status) status.textContent = '浏览器拦截了自动播放，请点击播放按钮。';
-      });
-    };
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startMusic, { once: true });
-    else startMusic();
-  })();
-</script>
+{% media audio %}
+- name: キミの記憶 -Reload-
+  artist: AyaseICE
+  url: /songs/about.mp3
+  cover: /assets/avatar.jpg
+  lrc: |
+    [00:00.00] 中文歌词播放器已启用
+    [00:04.00] 这里可以显示逐行滚动的中文歌词
+    [00:08.00] 请提供或上传已获授权的中文 LRC 歌词
+    [00:12.00] 我即可将这段示例替换为完整歌词
+{% endmedia %}
 
 ## **关于名字**
 

@@ -1,5 +1,5 @@
 # Project-level overrides for hexo-theme-shokax.
-alternate: When_Lie 的博客
+alternate: 冰霜の世界
 image_server: 
 # Use one predictable, full-width cover on the homepage.  This is the
 # classic ShokaX hero layout rather than a rotating image feed.
@@ -47,3 +47,25 @@ footer:
   powered: true
 pagefind:
   enable: false
+
+waline:
+  enable: true # 是否启用
+  serverURL: "" # waline 服务端地址
+  lang: "zh-CN" # 评论界面语言
+  locale: {} # 本地化替换，详见 waline 文档
+  emoji: # 表情包，默认为 waline 官方配置
+    - https://unpkg.com/@waline/emojis@1.0.1/weibo
+    - https://unpkg.com/@waline/emojis@1.0.1/alus
+    - https://unpkg.com/@waline/emojis@1.0.1/bilibili
+    - https://unpkg.com/@waline/emojis@1.0.1/qq
+    - https://unpkg.com/@waline/emojis@1.0.1/tieba
+    - https://unpkg.com/@waline/emojis@1.0.1/tw-emoji
+  meta: # 评论可以填写的项目
+    - nick
+    - mail
+    - link
+  requiredMeta: # 评论必须填写的项目
+
+  wordLimit: 0 # 评论字数上限 (不建议为 0)
+  pageSize: 10 # 每页显示评论条数
+  pageview: true # 页面浏览量显示
