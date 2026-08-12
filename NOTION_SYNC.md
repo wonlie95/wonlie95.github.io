@@ -7,7 +7,7 @@
 1. 在 [Notion Integrations](https://www.notion.so/my-integrations) 创建一个 Internal Integration，并复制 `Internal Integration Secret`。
 2. 打开博客文章数据库，在右上角 `…` → `Connections` → 添加刚创建的 Integration；必须共享**数据库本身**，不是只共享外层页面。
 3. 打开 GitHub 仓库的 `Settings` → `Secrets and variables` → `Actions` → `New repository secret`。
-4. 名称填写 `NOTION_TOKEN`，值粘贴该 Secret。
+4. 名称填写 `NOTION_BLOG`，值粘贴该 Secret。
 5. 在 GitHub 的 `Actions` 页面运行 `Sync Notion articles` 工作流一次。
 
 之后该工作流每 6 小时运行一次；Notion 有新增或编辑时，它会将 Markdown、图片下载到仓库并自动提交，随后 `Deploy Hexo site to GitHub Pages` 会自动重新发布。
