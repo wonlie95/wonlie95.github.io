@@ -1,13 +1,15 @@
 ---
 title: "阅读方法与阅读习惯的养成【摘录】"
 date: 2024-12-17T13:29:00.000Z
-updated: 2026-07-18T16:18:00.000Z
+updated: 2026-08-12T12:33:00.000Z
 categories:
   - "笔记"
   - "阅读"
+  - "摘录"
 tags:
   - "笔记"
   - "阅读"
+  - "摘录"
 notion_url: "https://app.notion.com/p/15faf7157eab806dbfe1fd02049bf87d"
 ---
 

@@ -30,17 +30,17 @@ Output Gain:0
 控制减少-8左右
 
 1. **水果**右键点击数字-点击 **AU**属性节拍与小节 和水果同步节拍数字 打开节拍器 用剃刀工具对轨
-![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/9b56e9c0efb492f6.png)
+![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/cc66c9ee88553845.png)
 
 1. VST-Fabfilter-Fab-Q（人声 EQ均衡器）
 90低切去喷麦，150低沉/明亮 500攻受 （ 调低变攻） 1800高音 5000去齿音 8000高通模式
 
-![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/966414e78aa9eebf.png)
+![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/7bc03457f6932c54.png)
 
-![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/8599c2fead346fe0.png)
+![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/589786c95f45a16f.png)
 
 1. VST-Effect-BBE Sound-@H82谐音激励器（BBE谐音激励器）
-![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/afd89280d9fa9d70.png)
+![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/3bac16295c4f355d.png)
 
 92Hz低音调频 1.5低音混合 1.2kHz 高频混合
 

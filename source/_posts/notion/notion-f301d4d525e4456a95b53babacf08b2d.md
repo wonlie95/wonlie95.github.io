@@ -1,25 +1,17 @@
 ---
-title: "Minecraft 1.7.10 喜爱的模组"
+title: "Minecraft 机器人模组的使用说明"
 date: 2022-12-14T08:13:00.000Z
-updated: 2023-09-26T12:19:00.000Z
+updated: 2026-08-12T12:29:00.000Z
 categories:
   - "游戏"
 tags:
   - "游戏"
-notion_url: "https://app.notion.com/p/Minecraft-1-7-10-f301d4d525e4456a95b53babacf08b2d"
+notion_url: "https://app.notion.com/p/Minecraft-f301d4d525e4456a95b53babacf08b2d"
 ---
-
-xenobyte
-
-**Baritone机器人**
-
-二、实用功能
 
 #blockReachDistance 4
 
 在介绍功能之前，我们首先需要记住一个指令，那就是帮助指令【#help】。当想查询一个指令时，比如想知道【#sel】怎么用，就可以【#help sel】查找。而且【#help】里还可以用鼠标点击翻页和查看，是不是非常方便！
-
-下面介绍基本指令，个人比较懒就不加前缀了，大家用的时候别忘了加奥。每个指令的后面我会介绍功能，比较重要的指令会根据我自己的经验多说两句。
 
 【thisway 1000】设置一个往你面对的方向走一千格距离的目标。
 
@@ -109,4 +101,4 @@ Baritone机器人还能够自己进行一些偏好设置，这些配置足有上
 
 【mineScanDroppedItems】采集是否考虑掉落物。默认的采集在扫描时是不考虑本来就在地上的掉落物的（挖完掉到地上才变成掉落物的不算）。
 
-【allowDiagonalAscend】是否允许斜着跳到上一层的方块。作者说挺安全的，比斜着下还安全。
+【allowDiagonalAscendxenobyte**Baritone**】是否允许斜着跳到上一层的方块。作者说挺安全的，比斜着下还安全。
