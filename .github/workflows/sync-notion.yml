@@ -10,8 +10,9 @@ permissions:
 
 jobs:
   sync:
-    if: ${{ secrets.NOTION_TOKEN != '' }}
     runs-on: ubuntu-latest
+    env:
+      NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -19,9 +20,13 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: node scripts/sync-notion.mjs
-        env:
-          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+      - name: Synchronize articles
+        run: |
+          if [ -z "$NOTION_TOKEN" ]; then
+            echo "NOTION_TOKEN is not configured; skipping synchronization."
+            exit 0
+          fi
+          node scripts/sync-notion.mjs
       - name: Commit synchronized articles
         run: |
           git config user.name "github-actions[bot]"
