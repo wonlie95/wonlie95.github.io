@@ -2,6 +2,7 @@
 title: "Xiaomi手机安装面具（ROOT）步骤"
 date: 2023-09-12T15:27:00.000Z
 updated: 2026-08-12T11:07:00.000Z
+toc: true
 categories:
   - "手机"
   - "技术"
