@@ -5,6 +5,7 @@
   "scripts": {
     "build": "hexo generate",
     "clean": "hexo clean",
+    "sync:notion": "node scripts/sync-notion.mjs",
     "deploy": "hexo deploy",
     "server": "hexo server"
   },
