@@ -27,18 +27,19 @@ nav:
     - label: 档案馆
       icon: file
       url: /archives/
-    - label: 链接
+    - label: tag
       icon: link
-      submenu:
-        - label: 代码仓库
-          icon: code
-          url: https://github.com/Candinya/Kratos-Rebirth
-        - label: 项目文档
-          icon: book
-          url: https://wiki.krt.moe
-    - label: 链接列表
-      icon: link
-      url: /linklist-example/
+      url: /tags/
+#      submenu:
+#        - label: 代码仓库
+#          icon: code
+#          url: https://github.com/Candinya/Kratos-Rebirth
+#        - label: 喵
+#          icon: code
+#          url: https://wiki.krt.moe 
+    - label: 关于
+      icon: book
+      url: /about/
       # float_right: true
 
 # Footer 页脚配置
