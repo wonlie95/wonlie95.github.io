@@ -1,0 +1,21 @@
+(() => {
+  const root = document.getElementById('site-player');
+  if (!root) return;
+  const audio = root.querySelector('audio');
+  const toggle = root.querySelector('.site-player-toggle');
+  const play = root.querySelector('.site-player-play');
+  const volume = root.querySelector('.site-player-volume');
+  const status = root.querySelector('.site-player-status');
+  const updateButton = () => { play.textContent = audio.paused ? '▶' : '❚❚'; };
+  const setStatus = (text) => { status.textContent = text; };
+  const start = () => audio.play().catch(() => setStatus('浏览器阻止了自动播放，请点击播放键。'));
+  audio.volume = Number(localStorage.getItem('site-player-volume') || 0.55);
+  volume.value = audio.volume;
+  toggle.addEventListener('click', () => root.classList.toggle('is-open'));
+  play.addEventListener('click', () => (audio.paused ? start() : audio.pause()));
+  volume.addEventListener('input', () => { audio.volume = Number(volume.value); localStorage.setItem('site-player-volume', String(audio.volume)); });
+  audio.addEventListener('play', () => { updateButton(); setStatus('正在播放'); });
+  audio.addEventListener('pause', () => { updateButton(); setStatus('已暂停'); });
+  audio.addEventListener('ended', updateButton);
+  updateButton();
+})();
