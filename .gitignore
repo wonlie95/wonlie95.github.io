@@ -4,11 +4,6 @@ db.json
 *.log
 node_modules/
 public/
-# Theme source must be versioned so GitHub Pages can build the selected theme.
-themes/*
-!themes/loststar/
-!themes/loststar/**
-# Preserve the upstream repository metadata locally, without committing it.
-themes/loststar/.upstream-git/
+themes/
 .deploy*/
 _multiconfig.yml

@@ -5,12 +5,12 @@ import path from 'node:path';
 const token = process.env.NOTION_TOKEN;
 const dataSourceId = process.env.NOTION_DATA_SOURCE_ID || '81e7a5d6-c649-47f9-83fa-a0954480c65f';
 const postsDirectory = path.resolve('source/_posts/notion');
+const aboutDirectory = path.resolve('source/about');
 const imagesDirectory = path.resolve('source/images/notion');
 const permanentPostSettings = {
   '3b9af7157eab80068e21f640913458be': {
     permalink: 'about/',
     date: '2023-09-27T00:00:00.000Z',
-    showIn: ['category', 'tag'],
   },
 };
 
@@ -163,6 +163,7 @@ async function allPages() {
 }
 
 await mkdir(postsDirectory, { recursive: true });
+await mkdir(aboutDirectory, { recursive: true });
 const pages = await allPages();
 const names = new Set();
 for (const page of pages) {
@@ -173,8 +174,10 @@ for (const page of pages) {
   const date = settings.date || page.created_time || new Date().toISOString();
   const renderedBody = await renderBlocks(await children(page.id), id);
   const body = id === aboutPageId ? `${aboutMusicPlayer}\n\n${renderedBody}` : renderedBody;
+  const cover = renderedBody.match(/!\[[^\]]*\]\(([^\s)]+)/)?.[1];
   const frontMatter = [
     '---', `title: ${escapeYaml(title)}`, `date: ${date}`, `updated: ${page.last_edited_time || date}`, 'toc: true',
+    ...(cover ? [`cover: ${escapeYaml(cover)}`] : []),
     ...(settings.permalink ? [`permalink: ${settings.permalink}`] : []),
     ...(settings.showIn ? ['show_in:', ...settings.showIn.map((location) => `  - ${location}`)] : []),
     'categories:', ...(tags.length ? tags.map((tag) => `  - ${escapeYaml(tag)}`) : ['  - 未分类']),
@@ -182,8 +185,12 @@ for (const page of pages) {
     `notion_url: ${escapeYaml(page.url)}`, '---', '', body || '_此文章暂无正文。_', '',
   ].join('\n');
   const filename = `notion-${id}.md`;
-  names.add(filename);
-  await writeFile(path.join(postsDirectory, filename), frontMatter, 'utf8');
+  if (id === aboutPageId) {
+    await writeFile(path.join(aboutDirectory, 'index.md'), frontMatter, 'utf8');
+  } else {
+    names.add(filename);
+    await writeFile(path.join(postsDirectory, filename), frontMatter, 'utf8');
+  }
 }
 for (const entry of await readdir(postsDirectory)) {
   if (entry.startsWith('notion-') && entry.endsWith('.md') && !names.has(entry)) await rm(path.join(postsDirectory, entry));

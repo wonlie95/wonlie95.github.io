@@ -1,0 +1,39 @@
+# Project-level overrides for hexo-theme-shokax.
+alternate: When_Lie 的博客
+image_server: https://images.unsplash.com/photo-1462331940025-496dfbfc7564
+# Aether is ShokaX's Markdown renderer.  Allow the preserved About page's
+# player markup to render instead of being displayed as literal text.
+aether:
+  markdownIt:
+    html: true
+    xhtmlOut: true
+    breaks: true
+    linkify: true
+    typographer: false
+    quotes: "“”‘’"
+modules:
+  player: false
+  fireworks: false
+  visibilityListener: true
+  tabs: true
+  quiz: false
+menu:
+  home: / || home
+  about: /about/ || user
+  archives: /archives/ || list-alt
+  categories: /categories/ || th
+  tags: /tags/ || tags
+social:
+  github: https://github.com/wonlie95 || github || "#191717"
+sidebar:
+  position: left
+  avatar: avatar.jpg
+widgets:
+  random_posts: false
+  recent_comments: false
+footer:
+  since: 2023
+  count: false
+  powered: true
+pagefind:
+  enable: false

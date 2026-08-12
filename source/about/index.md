@@ -1,17 +1,8 @@
 ---
-title: "ABOUT"
+title: ABOUT
 date: 2023-09-27T00:00:00.000Z
 updated: 2026-08-12T12:34:00.000Z
-toc: true
 permalink: about/
-show_in:
-  - category
-  - tag
-categories:
-  - "自我"
-tags:
-  - "自我"
-notion_url: "https://app.notion.com/p/ABOUT-3b9af7157eab80068e21f640913458be"
 ---
 
 <section class="about-music-player" aria-label="About 页面音乐播放器">
@@ -71,7 +62,7 @@ notion_url: "https://app.notion.com/p/ABOUT-3b9af7157eab80068e21f640913458be"
 
 大概是经典日本伤痛文学了
 
-我想自己是各式各样的样子的结合体 ~~（多重人格）~~
+我想自己是各式各样的样子的结合体 ~~（多重人格）~~
 
 金：温柔 冷静
 
@@ -89,7 +80,7 @@ notion_url: "https://app.notion.com/p/ABOUT-3b9af7157eab80068e21f640913458be"
 
 其实倒也没有多想，只是觉得这个姓氏听起来很好听
 
-至于我是从何处知道这个姓氏的来源，则是出自于初中时游玩的一款NDS游戏『美妙世界/The World Ends With You』中的男主角：**桜庭 音操** 的姓氏
+至于我是从何处知道这个姓氏的来源，则是出自于初中时游玩的一款NDS游戏『美妙世界/The World Ends With You』中的男主角：**桜庭 音操** 的姓氏
 
 ## **关于爱好**
 

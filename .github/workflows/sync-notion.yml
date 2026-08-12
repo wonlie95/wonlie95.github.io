@@ -21,6 +21,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: node ./node_modules/hexo-theme-shokax/toolbox/hoistdep.mjs
       - name: Synchronize articles
         run: |
           if [ -z "$NOTION_TOKEN" ]; then
@@ -32,7 +33,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A source/_posts/notion source/images/notion 2>/dev/null || true
+          git add -A source/_posts/notion source/about source/images/notion 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git commit -m "Sync Notion articles"
             git push
