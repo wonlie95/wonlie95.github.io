@@ -1,14 +1,16 @@
 ---
 title: "演讲与口才 读书笔记"
 date: 2024-09-03T07:08:00.000Z
-updated: 2026-08-12T12:33:00.000Z
+updated: 2026-08-12T15:50:00.000Z
 toc: true
 categories:
   - "笔记"
   - "书籍"
+  - "NO"
 tags:
   - "笔记"
   - "书籍"
+  - "NO"
 notion_url: "https://app.notion.com/p/c1ce2eeeed0a44d191aa141007039dbb"
 ---
 
