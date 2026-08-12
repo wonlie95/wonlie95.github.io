@@ -72,6 +72,8 @@ const escapeYaml = (value) => JSON.stringify(String(value ?? ''));
 const idOf = (page) => page.id.replaceAll('-', '');
 const propertyText = (property) => (property?.title || property?.rich_text || []).map((item) => item.plain_text).join('');
 const propertyTags = (property) => (property?.multi_select || []).map((item) => item.name);
+const isExcludedFromBlog = (page) => propertyTags(page.properties['分类'])
+  .some((tag) => tag.trim().toUpperCase() === 'NO');
 const richText = (parts = []) => parts.map((part) => {
   let text = part.plain_text || '';
   if (part.href) text = `[${text}](${part.href})`;
@@ -154,7 +156,7 @@ async function allPages() {
     const result = await request(`/data_sources/${dataSourceId}/query`, {
       method: 'POST', body: JSON.stringify({ page_size: 100, start_cursor: cursor }),
     });
-    pages.push(...result.results.filter((page) => !page.archived && !page.in_trash));
+    pages.push(...result.results.filter((page) => !page.archived && !page.in_trash && !isExcludedFromBlog(page)));
     cursor = result.next_cursor;
   } while (cursor);
   return pages;
