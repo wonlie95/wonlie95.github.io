@@ -58,7 +58,7 @@ function extension(contentType, source) {
 
 async function localImage(url, pageId) {
   try {
-    const response = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+    const response = await fetch(url, { signal: AbortSignal.timeout(5_000) });
     if (!response.ok) return url;
     const bytes = Buffer.from(await response.arrayBuffer());
     const name = `${createHash('sha1').update(url).digest('hex').slice(0, 16)}${extension(response.headers.get('content-type') || '', url)}`;
