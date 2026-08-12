@@ -27,7 +27,7 @@ jobs:
             echo "NOTION_TOKEN is not configured; skipping synchronization."
             exit 0
           fi
-          node scripts/sync-notion.mjs
+          node tools/sync-notion.mjs
       - name: Commit synchronized articles
         run: |
           git config user.name "github-actions[bot]"

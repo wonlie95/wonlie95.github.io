@@ -6,6 +6,9 @@ const token = process.env.NOTION_TOKEN;
 const dataSourceId = process.env.NOTION_DATA_SOURCE_ID || '81e7a5d6-c649-47f9-83fa-a0954480c65f';
 const postsDirectory = path.resolve('source/_posts/notion');
 const imagesDirectory = path.resolve('source/images/notion');
+const permanentPermalinks = {
+  '3b9af7157eab80068e21f640913458be': 'about/',
+};
 
 if (!token) throw new Error('NOTION_TOKEN is required. Add it as a GitHub Actions repository secret.');
 
@@ -126,6 +129,7 @@ for (const page of pages) {
   const body = await renderBlocks(await children(page.id), id);
   const frontMatter = [
     '---', `title: ${escapeYaml(title)}`, `date: ${date}`, `updated: ${page.last_edited_time || date}`,
+    ...(permanentPermalinks[id] ? [`permalink: ${permanentPermalinks[id]}`] : []),
     'categories:', ...(tags.length ? tags.map((tag) => `  - ${escapeYaml(tag)}`) : ['  - 未分类']),
     'tags:', ...(tags.length ? tags.map((tag) => `  - ${escapeYaml(tag)}`) : ['  - Notion']),
     `notion_url: ${escapeYaml(page.url)}`, '---', '', body || '_此文章暂无正文。_', '',
