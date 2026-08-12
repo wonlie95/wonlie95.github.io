@@ -1,0 +1,52 @@
+// ShokaX 0.4's sidebar changes from normal flow to fixed positioning at the
+// lower edge of long listing pages. Keep the listing pages in one compositor
+// layer so the hand-off cannot repaint as a visible flash.
+.collapse.wrap {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+// The theme's decorative heading animation is distracting on archive/tag
+// listings and can look like flickering when the page settles at the footer.
+.collapse .item,
+.collapse .item::before,
+.collapse .item::after {
+  animation: none !important;
+}
+
+// Keep the sidebar out of the scroll-container height calculation on long
+// list pages. Without this, the theme toggles its fixed state at the footer
+// and can repeatedly repaint the archive/tag view.
+@media (min-width: 992px) {
+  #sidebar {
+    overflow: visible;
+  }
+}
+
+.cursor-snowflake {
+  position: fixed;
+  z-index: 9999999;
+  border-radius: 50%;
+  pointer-events: none;
+  background: rgba(255, 255, 255, .95);
+  box-shadow: 0 0 .4rem rgba(255, 255, 255, .85);
+  will-change: transform, opacity;
+  animation: cursor-snowfall var(--snow-duration) ease-out forwards;
+}
+
+@keyframes cursor-snowfall {
+  from {
+    opacity: .95;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(var(--snow-drift), 7rem, 0) rotate(180deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-snowflake {
+    display: none;
+  }
+}

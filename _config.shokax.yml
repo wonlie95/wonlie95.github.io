@@ -21,7 +21,9 @@ aether:
     quotes: "“”‘’"
 modules:
   player: true
-  fireworks: true
+  # The click-firework overlay is a known source of repaint flicker on long
+  # archive/tag pages in the classic theme. The snow effect remains enabled.
+  fireworks: false
   visibilityListener: true
   tabs: true
   quiz: true
@@ -30,6 +32,7 @@ menu:
   about: /about/ || user
   archives: /archives/ || list-alt
   tags: /tags/ || tags
+  friends: /friends/ || heart
 social:
   github: https://github.com/wonlie95 || github || "#191717"
 sidebar:
