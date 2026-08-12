@@ -57,14 +57,19 @@ function extension(contentType, source) {
 }
 
 async function localImage(url, pageId) {
-  const response = await fetch(url);
-  if (!response.ok) return url;
-  const bytes = Buffer.from(await response.arrayBuffer());
-  const name = `${createHash('sha1').update(url).digest('hex').slice(0, 16)}${extension(response.headers.get('content-type') || '', url)}`;
-  const folder = path.join(imagesDirectory, pageId);
-  await mkdir(folder, { recursive: true });
-  await writeFile(path.join(folder, name), bytes);
-  return `/images/notion/${pageId}/${name}`;
+  try {
+    const response = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+    if (!response.ok) return url;
+    const bytes = Buffer.from(await response.arrayBuffer());
+    const name = `${createHash('sha1').update(url).digest('hex').slice(0, 16)}${extension(response.headers.get('content-type') || '', url)}`;
+    const folder = path.join(imagesDirectory, pageId);
+    await mkdir(folder, { recursive: true });
+    await writeFile(path.join(folder, name), bytes);
+    return `/images/notion/${pageId}/${name}`;
+  } catch (error) {
+    console.warn(`Could not download image; keeping its original URL: ${error.message}`);
+    return url;
+  }
 }
 
 async function renderBlocks(blocks, pageId, depth = 0) {
