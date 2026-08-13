@@ -1,27 +1,41 @@
-// Classic ShokaX turns the desktop sidebar from normal flow into `fixed` while
-// the page scrolls. On pages that reach the footer this can repeatedly change
-// the document height, producing a visible flash. Make the sidebar sticky for
-// every page instead, so its geometry never changes during scrolling.
+// Classic ShokaX changes the desktop sidebar's layout when the page crosses a
+// scroll threshold. That changes the document height near the footer and lets
+// the browser's scroll anchoring pull the viewport back upward. The companion
+// script keeps the sidebar in its original in-flow desktop state. These rules
+// make that state stable on every page.
+html {
+  overflow-anchor: none;
+}
+
 @media (min-width: 992px) {
   #sidebar,
   #sidebar.affix {
-    overflow: visible;
-    align-self: stretch;
     transition: none !important;
   }
 
   #sidebar > .inner,
   #sidebar.affix > .inner {
-    position: sticky;
-    top: 0;
+    position: relative;
     transition: none !important;
   }
 
   #sidebar .panels,
   #sidebar.affix .panels {
     height: auto;
-    min-height: 0;
+    min-height: 100vh;
     padding-top: 4.6875rem;
+  }
+
+  // Keep the quick controls present, rather than making the sidebar taller
+  // only after a scroll event.
+  #quick,
+  #sidebar.affix #quick {
+    display: flex;
+  }
+
+  #sidebar .tab,
+  #sidebar.affix .tab {
+    padding-top: 1.875rem;
   }
 }
 
@@ -35,10 +49,12 @@
 .cursor-snowflake {
   position: fixed;
   z-index: 9999999;
-  border-radius: 50%;
   pointer-events: none;
-  background: rgba(255, 255, 255, .95);
-  box-shadow: 0 0 .4rem rgba(255, 255, 255, .85);
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 0 .45rem rgba(255, 255, 255, .95), 0 0 .9rem rgba(173, 216, 255, .7);
   will-change: transform, opacity;
   animation: cursor-snowfall var(--snow-duration) ease-out forwards;
 }
@@ -54,8 +70,68 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .cursor-snowflake {
-    display: none;
+
+// A simple, valid archive layout that remains readable on both color schemes.
+.timeline-archive {
+  max-width: 56rem;
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
+}
+
+.timeline-archive__summary {
+  margin: 0 0 2rem;
+  color: var(--grey, #8a8a8a);
+  font-size: .9rem;
+}
+
+.timeline-archive__year {
+  margin: 0 0 2.75rem;
+}
+
+.timeline-archive__year h2 {
+  margin: 0 0 1rem;
+  padding-bottom: .55rem;
+  border-bottom: 1px solid var(--grey-light, rgba(127, 127, 127, .25));
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.timeline-archive__year ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline-archive__post {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: .55rem .25rem;
+  border-bottom: 1px dashed var(--grey-light, rgba(127, 127, 127, .2));
+}
+
+.timeline-archive__post time {
+  flex: 0 0 3.4rem;
+  color: var(--grey, #8a8a8a);
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-archive__post a {
+  color: var(--text-color, inherit);
+  font-size: 1.02rem;
+  text-decoration: none;
+}
+
+.timeline-archive__post a:hover {
+  color: var(--primary-color, #f06d8f);
+}
+
+@media (max-width: 480px) {
+  .timeline-archive__post {
+    gap: .65rem;
+  }
+
+  .timeline-archive__year h2 {
+    font-size: 1.65rem;
   }
 }

@@ -3,7 +3,7 @@ title: "【教程】桌游模拟器 使用说明"
 date: 2022-11-02T13:03:00.000Z
 updated: 2026-08-12T15:55:00.000Z
 toc: true
-cover: "/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/4404f165753b8bbd.png"
+cover: "images/notion/674eb71e0b3f471ba7a9c37049cf1ead/4404f165753b8bbd.png"
 categories:
   - "教程"
 tags:

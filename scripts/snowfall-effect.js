@@ -1,7 +1,5 @@
 /**
- * Lightweight, dependency-free cursor snowfall for ShokaX.
- * Injecting the script through the theme keeps it active after PJAX navigation
- * while the cap and short lifetime prevent long pages from accumulating nodes.
+ * Visible cursor snowfall that survives ShokaX PJAX navigation.
  */
 hexo.extend.filter.register('theme_inject', (injects) => {
   injects.bodyEnd.raw('snowfall.pug', `
@@ -10,26 +8,25 @@ script.
     if (window.__cursorSnowfallInstalled) return;
     window.__cursorSnowfallInstalled = true;
 
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let lastDrop = 0;
     let active = 0;
     const maxFlakes = 36;
 
     const dropSnow = (event) => {
-      if (reduceMotion.matches || active >= maxFlakes) return;
+      if (active >= maxFlakes) return;
       const now = performance.now();
-      if (now - lastDrop < 55) return;
+      if (now - lastDrop < 45) return;
       lastDrop = now;
 
       const flake = document.createElement('span');
-      const size = 4 + Math.random() * 7;
+      const size = 12 + Math.random() * 10;
       const drift = (Math.random() - 0.5) * 90;
-      const duration = 1100 + Math.random() * 900;
+      const duration = 1200 + Math.random() * 900;
       flake.className = 'cursor-snowflake';
-      flake.style.cssText = \
-        'left:' + (event.clientX - size / 2) + 'px;' +
-        'top:' + (event.clientY - size / 2) + 'px;' +
-        'width:' + size + 'px;height:' + size + 'px;' +
+      flake.textContent = '\\u2744';
+      flake.style.cssText = 'left:' + event.clientX + 'px;' +
+        'top:' + event.clientY + 'px;' +
+        'font-size:' + size + 'px;' +
         '--snow-drift:' + drift + 'px;' +
         '--snow-duration:' + duration + 'ms;';
       document.body.appendChild(flake);
@@ -41,6 +38,7 @@ script.
     };
 
     document.addEventListener('pointermove', dropSnow, { passive: true });
+    document.addEventListener('mousemove', dropSnow, { passive: true });
   })();
 `);
 });

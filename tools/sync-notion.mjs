@@ -175,9 +175,14 @@ for (const page of pages) {
   const renderedBody = await renderBlocks(await children(page.id), id);
   const body = id === aboutPageId ? `${aboutMusicPlayer}\n\n${renderedBody}` : renderedBody;
   const cover = renderedBody.match(/!\[[^\]]*\]\(([^\s)]+)/)?.[1];
+  // ShokaX prepends its static root to `cover`.  A leading slash here would
+  // therefore become `//images/...`, which browsers interpret as a hostname
+  // rather than a local site path. Keep the Markdown image URL untouched, but
+  // store the cover without its leading slash for the theme helper.
+  const themeCover = cover?.replace(/^\/+/, '');
   const frontMatter = [
     '---', `title: ${escapeYaml(title)}`, `date: ${date}`, `updated: ${page.last_edited_time || date}`, 'toc: true',
-    ...(cover ? [`cover: ${escapeYaml(cover)}`] : []),
+    ...(themeCover ? [`cover: ${escapeYaml(themeCover)}`] : []),
     ...(settings.permalink ? [`permalink: ${settings.permalink}`] : []),
     ...(settings.showIn ? ['show_in:', ...settings.showIn.map((location) => `  - ${location}`)] : []),
     'categories:', ...(tags.length ? tags.map((tag) => `  - ${escapeYaml(tag)}`) : ['  - 未分类']),

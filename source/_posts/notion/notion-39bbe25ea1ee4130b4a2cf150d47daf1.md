@@ -3,7 +3,7 @@ title: "【教程】我个人喜欢的AU处理人声步骤"
 date: 2021-11-18T04:28:00.000Z
 updated: 2026-08-12T15:55:00.000Z
 toc: true
-cover: "/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/9e77029b453859d2.png"
+cover: "images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/9e77029b453859d2.png"
 categories:
   - "教程"
 tags:
