@@ -25,15 +25,23 @@ script(type="module").
           requiredMeta: [],
           login: 'disable',
           pageSize: 10,
-          pageview: true
+          pageview: false
         });
       } catch (error) {
         el.dataset.walineMounted = 'false';
         console.error('[Waline] fallback mount failed', error);
       }
     };
-    mount();
-    document.addEventListener('pjax:success', mount);
+    // Mount during an idle slice so comment loading cannot block scrolling.
+    const schedule = () => {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(mount, { timeout: 2500 });
+      } else {
+        window.setTimeout(mount, 1200);
+      }
+    };
+    schedule();
+    document.addEventListener('pjax:success', schedule);
   })();
   `)
 })

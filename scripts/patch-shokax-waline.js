@@ -1,9 +1,8 @@
 'use strict'
 
-// ShokaX 0.4.25 calls its Waline "recent comments" renderer on every page,
-// even when the optional recent-comments widget (and therefore #new-comment)
-// is not present.  The renderer then throws on the homepage.  Keep normal
-// article comments and page-view counts intact; only skip that invalid call.
+// ShokaX 0.4.25 starts Waline from a scroll observer near the page bottom.
+// Let the non-blocking fallback own mounting so a slow comment request cannot
+// freeze bottom-of-page interaction.
 const fs = require('fs')
 const path = require('path')
 
@@ -26,17 +25,25 @@ const original = `  if (__shokax_waline__) {
   }
 `
 
-if (fs.existsSync(target)) {
-  const source = fs.readFileSync(target, 'utf8')
-  if (!source.includes('// Local fix: avoid rendering recent comments without its widget.')) {
-    if (!source.includes(original)) {
-      throw new Error('Unsupported ShokaX refresh.ts: Waline recent-comments block was not found.')
-    }
-
-    const replacement = `  // Local fix: avoid rendering recent comments without its widget.
-  // Article comments and page views are initialized separately above.
+const observer = `          if (__shokax_waline__) {
+            import('../components/comments').then(({walinePageview, walineComment}) => {
+              walinePageview()
+              walineComment()
+            })
+          }
 `
 
-    fs.writeFileSync(target, source.replace(original, replacement))
+if (fs.existsSync(target)) {
+  let source = fs.readFileSync(target, 'utf8')
+  if (source.includes(original)) {
+    source = source.replace(original, `  // Local fix: avoid rendering recent comments without its widget.
+  // Article comments and page views are initialized separately above.
+`)
   }
+  if (source.includes(observer)) {
+    source = source.replace(observer, `          // Local fix: Waline is mounted by the non-blocking fallback.
+          // Do not start network work from the bottom scroll observer.
+`)
+  }
+  fs.writeFileSync(target, source)
 }
