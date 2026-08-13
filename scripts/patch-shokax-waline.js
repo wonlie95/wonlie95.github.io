@@ -41,6 +41,15 @@ const head = path.join(
   'head_com.pug'
 )
 const layoutRoot = path.join(__dirname, '..', 'node_modules', 'hexo-theme-shokax', 'layout')
+const nyxAudioPlayer = path.join(
+  __dirname,
+  '..',
+  'node_modules',
+  'nyx-player',
+  'src',
+  'components',
+  'AudioPlayer.vue'
+)
 
 const original = `  if (__shokax_waline__) {
     import('../components/comments').then(async ({walineRecentComments}) => {
@@ -123,6 +132,40 @@ if (fs.existsSync(handles)) {
     source = source.replace(sidebarAffix, "  // Local fix: keep the desktop sidebar in normal flow to avoid scroll jumps.")
   }
   fs.writeFileSync(handles, source)
+}
+
+// Nyx Player 0.1.1 awaits the remote Meting request in <script setup>.
+// Vue therefore keeps the whole player inside Suspense until that third-party
+// endpoint responds, delaying the show-button listener as well.  Fetch the
+// playlist in the background so the shell opens immediately on every page.
+if (fs.existsSync(nyxAudioPlayer)) {
+  let source = fs.readFileSync(nyxAudioPlayer, 'utf8')
+  const backgroundPlaylistFetch = `if (!playingStore.playlists.some(playlist => playlist.playlist.length > 0)) {
+  // Discard an empty list persisted by a previous interrupted request.
+  playingStore.playlists.splice(0)
+  const requests = props.playlistURLs.map(async (url, index) => {
+    const playlist = new PlayList(url.url, url.name, index)
+    playingStore.playlists.push(playlist)
+    playlist.parserURL()
+    await playlist.fetchPlaylist()
+  })
+  Promise.allSettled(requests).then(() => {
+    // Refresh computed song data after the remote playlists settle.
+    playingStore.currentId++
+  })
+}`
+  const blockingPlaylistPattern = /if \(playingStore\.playlists\.length === 0\) \{\r?\n  await Promise\.all\(props\.playlistURLs\.map\(async \(url, index\) => \{\r?\n    const playlist = new PlayList\(url\.url, url\.name, index\)\r?\n    playingStore\.playlists\.push\(playlist\)\r?\n    playlist\.parserURL\(\)\r?\n    await playlist\.fetchPlaylist\(\)\r?\n  \}\)\)\r?\n\}/
+  if (blockingPlaylistPattern.test(source)) {
+    source = source.replace(blockingPlaylistPattern, backgroundPlaylistFetch)
+    fs.writeFileSync(nyxAudioPlayer, source)
+  }
+  else if (source.includes('if (playingStore.playlists.length === 0) {\n  const requests =')) {
+    source = source.replace(
+      'if (playingStore.playlists.length === 0) {\n  const requests =',
+      'if (!playingStore.playlists.some(playlist => playlist.playlist.length > 0)) {\n  // Discard an empty list persisted by a previous interrupted request.\n  playingStore.playlists.splice(0)\n  const requests ='
+    )
+    fs.writeFileSync(nyxAudioPlayer, source)
+  }
 }
 
 // ShokaX 0.5 expects page.tags to be a Hexo Query object.  Static pages
