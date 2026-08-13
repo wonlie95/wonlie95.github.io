@@ -1,9 +1,11 @@
 # Local fallback covers used by ShokaX when an article has no cover.
 # Keeping these files in the repository avoids external image-host hotlink
 # blocks on GitHub Pages.
-- https://wonlie95.github.io/images/notion/164cb3c666e34c46a9f826b2271cf6f3/e24fb85178321f35.png
-- https://wonlie95.github.io/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/9e77029b453859d2.png
-- https://wonlie95.github.io/images/notion/468a0ef181e243649b0ae4295d3329ce/2dd4b15024fdf915.gif
-- https://wonlie95.github.io/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/4404f165753b8bbd.png
-- https://wonlie95.github.io/images/notion/9151fd91e05e4157a2ead0c0061468c6/ee8693a949ef4be4.png
-- https://wonlie95.github.io/images/notion/ed480289b32c4fb7876818ef50ba4096/9993476f846468ad.png
+- https://clan.akamai.steamstatic.com/images//25278042/7f7ca41e688b082277f5f7406484c81fe0e68a81.png
+- https://clan.akamai.steamstatic.com/images//25278042/0f348df52bc3e73c6c865cc61e163269132e0060.png
+- https://clan.akamai.steamstatic.com/images//25278042/d3fa94261e71bb4c0185920c580bde2af4d5635f.png
+- https://clan.akamai.steamstatic.com/images//25278042/dbc241451c7da1d515e86efe8b9fa0d20611fc68.png
+- https://clan.akamai.steamstatic.com/images//25278042/ebc8cde7f3eae40503bda35103681fa16b4de7ba.png
+- https://clan.akamai.steamstatic.com/images//25278042/2b7467784d4d5b6cb1fb317ce64fe4c51514f709.png
+- https://clan.akamai.steamstatic.com/images//25278042/1615ec97c0b2140b3516454dec15f77f6caf1ae7.png
+- https://clan.akamai.steamstatic.com/images//25278042/42627f3b1d06ce206da473b088f19419baf5a32e.png

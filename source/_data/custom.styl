@@ -26,17 +26,17 @@ html {
     padding-top: 4.6875rem;
   }
 
-  // Keep the quick controls present, rather than making the sidebar taller
-  // only after a scroll event.
-  #quick,
-  #sidebar.affix #quick {
-    display: flex;
-  }
-
   #sidebar .tab,
   #sidebar.affix .tab {
     padding-top: 1.875rem;
   }
+}
+
+// Hide the sidebar's up/down page-navigation shortcuts.
+#quick,
+#sidebar.affix #quick,
+#sidebar.on #quick {
+  display: none !important;
 }
 
 // The floating controls also switch their position at the same scroll point.
