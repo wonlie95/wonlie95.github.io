@@ -32,14 +32,14 @@ modules:
 # ShokaX original Nyx Player playlist. The Meting-compatible song URL lets
 # Nyx Player obtain the audio, cover and synchronized LRC automatically.
 audio:
-  - title: "キミの記憶 -Reload-"
+  - title: "キミの記憶"
     list:
-      - "https://music.163.com/#/song?id=2123802258"
+      - "https://music.163.com/playlist?id=12584824470&uct2=U2FsdGVkX18DQ1Tv/yIAB0SmQ/xQATUKZr/EKB8bmMU="
 menu:
   home: / || home
-  about: /about/ || user
   archives: /archives/ || list-alt
   tags: /tags/ || tags
+  about: /about/ || user
   friends: /friends/ || heart
 social:
   github: https://github.com/wonlie95 || github || "#191717"
@@ -65,9 +65,9 @@ waline:
   emoji: false
   meta: # 评论可以填写的项目
     - nick
-    - link
-  requiredMeta: [] # 不强制要求填写昵称、邮箱或网址；必须是数组，不能留成 null
-
-  wordLimit: 0 # 评论字数上限 (不建议为 0)
+  requiredMeta: # 评论必须填写的项目
+    - nick
+    - mail
+  wordLimit: 999 # 评论字数上限 (不建议为 0)
   pageSize: 10 # 每页显示评论条数
   pageview: false # 关闭页面浏览量请求，避免滚动到底部时触发网络阻塞

@@ -166,6 +166,78 @@ if (fs.existsSync(nyxAudioPlayer)) {
     )
     fs.writeFileSync(nyxAudioPlayer, source)
   }
+
+  const originalPlaybackWatcher = `onMounted(() => {
+  watch(() => playingStore.currentId, async () => {
+    if (audioPlayer.value !== null) {
+      if (playingStore.playing) {
+        if (playingStore.mode === 'loop') {
+          audioPlayer.value.loop = true
+        }
+        await audioPlayer.value.play()
+      }
+      else {
+        audioPlayer.value.pause()
+      }
+    }
+  })
+})`
+  const autoplayWatcher = `let waitingForFirstGesture = false
+
+function armFirstGesturePlayback() {
+  if (waitingForFirstGesture)
+    return
+  waitingForFirstGesture = true
+  const events = ['pointerdown', 'touchstart', 'keydown', 'click'] as const
+  const resume = () => {
+    events.forEach(event => document.removeEventListener(event, resume))
+    waitingForFirstGesture = false
+    playingStore.playing = true
+    audioPlayer.value?.play().catch(() => {
+      playingStore.playing = false
+      armFirstGesturePlayback()
+    })
+  }
+  events.forEach(event => document.addEventListener(event, resume, { once: true, passive: true }))
+}
+
+async function syncPlayback() {
+  if (audioPlayer.value === null)
+    return
+  if (!playingStore.playing) {
+    audioPlayer.value.pause()
+    return
+  }
+  if (playingStore.mode === 'loop')
+    audioPlayer.value.loop = true
+  try {
+    await audioPlayer.value.play()
+  }
+  catch {
+    // Browsers commonly block audible autoplay. Resume on the visitor's first
+    // interaction instead of showing a false playing state.
+    playingStore.playing = false
+    armFirstGesturePlayback()
+  }
+}
+
+onMounted(() => {
+  watch(() => playingStore.currentId, syncPlayback)
+  armFirstGesturePlayback()
+  playingStore.playing = true
+  playingStore.currentId++
+})`
+  if (source.includes(originalPlaybackWatcher)) {
+    source = source.replace(originalPlaybackWatcher, autoplayWatcher)
+    fs.writeFileSync(nyxAudioPlayer, source)
+  }
+  else {
+    const playbackWatcherPattern = /onMounted\(\(\) => \{\r?\n  watch\(\(\) => playingStore\.currentId, async \(\) => \{\r?\n    if \(audioPlayer\.value !== null\) \{\r?\n      if \(playingStore\.playing\) \{\r?\n        if \(playingStore\.mode === 'loop'\) \{\r?\n          audioPlayer\.value\.loop = true\r?\n        \}\r?\n        await audioPlayer\.value\.play\(\)\r?\n      \}\r?\n      else \{\r?\n        audioPlayer\.value\.pause\(\)\r?\n      \}\r?\n    \}\r?\n  \}\)\r?\n\}\)/
+    if (playbackWatcherPattern.test(source)) {
+      source = source.replace(playbackWatcherPattern, autoplayWatcher)
+      fs.writeFileSync(nyxAudioPlayer, source)
+    }
+  }
 }
 
 // ShokaX 0.5 expects page.tags to be a Hexo Query object.  Static pages
