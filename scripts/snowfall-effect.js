@@ -10,12 +10,12 @@ script.
 
     let lastDrop = 0;
     let active = 0;
-    const maxFlakes = 36;
+    const maxFlakes = 18;
 
     const dropSnow = (event) => {
       if (active >= maxFlakes) return;
       const now = performance.now();
-      if (now - lastDrop < 45) return;
+      if (now - lastDrop < 90) return;
       lastDrop = now;
 
       const flake = document.createElement('span');
@@ -35,10 +35,15 @@ script.
         flake.remove();
         active -= 1;
       }, { once: true });
+      window.setTimeout(() => {
+        if (flake.isConnected) {
+          flake.remove();
+          active -= 1;
+        }
+      }, duration + 150);
     };
 
     document.addEventListener('pointermove', dropSnow, { passive: true });
-    document.addEventListener('mousemove', dropSnow, { passive: true });
   })();
 `);
 });
