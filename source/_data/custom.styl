@@ -39,6 +39,17 @@ html {
   display: none !important;
 }
 
+// The stock homepage only reveals a post card after 30% of it enters the
+// viewport. With uneven cover heights that observer can stop revealing later
+// cards, making the feed look as if it froze. Keep every card visible.
+.index.wrap article.item,
+.index.wrap section.item {
+  display: block !important;
+  opacity: 1 !important;
+  animation: none !important;
+  transform: none !important;
+}
+
 // The floating controls also switch their position at the same scroll point.
 // Removing that transition avoids a second compositor repaint at the footer.
 #tool,

@@ -47,7 +47,6 @@ footer:
   powered: true
 pagefind:
   enable: false
-
 waline:
   enable: true # 是否启用
   serverURL: "https://waline-ice-world-lknof0h0v-wonlie95s-projects.vercel.app" # waline 服务端地址
@@ -62,7 +61,6 @@ waline:
     - https://unpkg.com/@waline/emojis@1.0.1/tw-emoji
   meta: # 评论可以填写的项目
     - nick
-    - mail
     - link
   requiredMeta: # 评论必须填写的项目
 
