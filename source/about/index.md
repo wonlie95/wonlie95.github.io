@@ -4,10 +4,6 @@ date: 2023-09-27T00:00:00.000Z
 updated: 2026-08-12T12:34:00.000Z
 toc: true
 permalink: about/
-categories:
-  - "自我"
-tags:
-  - "自我"
 notion_url: "https://app.notion.com/p/ABOUT-3b9af7157eab80068e21f640913458be"
 ---
 
