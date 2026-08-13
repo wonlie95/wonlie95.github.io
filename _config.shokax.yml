@@ -5,7 +5,8 @@ image_server:
 # classic ShokaX hero layout rather than a rotating image feed.
 homeConfig:
   gradient: false
-  fixedCover: ""
+  # One shared banner for the homepage and every article page.
+  fixedCover: "https://clan.akamai.steamstatic.com/images//25278042/f446843fd9328318463318c4ec624a9d9ba0f9ca.png"
 loader:
   start: false
   switch: false
