@@ -21,7 +21,7 @@
     "es-toolkit": "^1.39.8",
     "esbuild": "^0.25.8",
     "hana-img-viewer": "^1.2.3",
-    "hexo": "^7.3.0",
+    "hexo": "^8.1.2",
     "hexo-algoliasearch": "^2.0.1",
     "hexo-feed": "^1.1.2",
     "hexo-fs": "^5.0.0",
