@@ -28,6 +28,13 @@ modules:
   visibilityListener: true
   tabs: true
   quiz: true
+
+# ShokaX original Nyx Player playlist. The Meting-compatible song URL lets
+# Nyx Player obtain the audio, cover and synchronized LRC automatically.
+audio:
+  - title: "キミの記憶 -Reload-"
+    list:
+      - "https://music.163.com/#/song?id=2123802258"
 menu:
   home: / || home
   about: /about/ || user

@@ -15,42 +15,6 @@ const permanentPostSettings = {
 };
 
 const aboutPageId = '3b9af7157eab80068e21f640913458be';
-const aboutMusicPlayer = `
-<section class="about-music-player" aria-label="About 页面音乐播放器">
-  <p class="about-music-player__title">♪ 正在播放：キミの記憶 -Reload-</p>
-  <audio id="about-music" controls autoplay preload="auto">
-    <source src="/songs/about.mp3" type="audio/mpeg">
-    你的浏览器不支持音频播放。
-  </audio>
-  <p id="about-music-status" class="about-music-player__status" aria-live="polite"></p>
-</section>
-
-<style>
-  .about-music-player { margin: 0 0 2rem; padding: 1rem 1.2rem; border-radius: 12px; background: rgba(255,255,255,.72); box-shadow: 0 4px 18px rgba(0,0,0,.08); }
-  .about-music-player__title { margin: 0 0 .6rem; font-weight: 600; }
-  .about-music-player audio { display: block; width: 100%; }
-  .about-music-player__status { margin: .6rem 0 0; font-size: .86em; opacity: .7; }
-</style>
-
-<script>
-  (() => {
-    const startMusic = () => {
-      const player = document.getElementById('about-music');
-      const status = document.getElementById('about-music-status');
-      if (!player || player.dataset.started) return;
-      player.dataset.started = 'true';
-      player.volume = 0.55;
-      player.play().then(() => {
-        if (status) status.textContent = '音乐正在播放';
-      }).catch(() => {
-        if (status) status.textContent = '浏览器拦截了自动播放，请点击播放按钮。';
-      });
-    };
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startMusic, { once: true });
-    else startMusic();
-  })();
-</script>
-`.trim();
 
 if (!token) throw new Error('NOTION_TOKEN is required. Add it as a GitHub Actions repository secret.');
 
@@ -173,7 +137,7 @@ for (const page of pages) {
   const settings = permanentPostSettings[id] || {};
   const date = settings.date || page.created_time || new Date().toISOString();
   const renderedBody = await renderBlocks(await children(page.id), id);
-  const body = id === aboutPageId ? `${aboutMusicPlayer}\n\n${renderedBody}` : renderedBody;
+  const body = renderedBody;
   const cover = renderedBody.match(/!\[[^\]]*\]\(([^\s)]+)/)?.[1];
   // ShokaX prepends its static root to `cover`.  A leading slash here would
   // therefore become `//images/...`, which browsers interpret as a hostname

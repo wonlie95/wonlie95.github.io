@@ -91,6 +91,13 @@ html {
   transition: none !important;
 }
 
+// ShokaX 0.5.4 still ships the old rule that permanently hides the music
+// panel button. Nyx Player owns this button now, so expose it whenever the
+// original player module is enabled.
+#tool .player #showBtn {
+  display: block;
+}
+
 .cursor-snowflake {
   position: fixed;
   z-index: 9999999;
