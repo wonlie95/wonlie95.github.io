@@ -34,7 +34,7 @@ modules:
 audio:
   - title: "キミの記憶"
     list:
-      - "https://music.163.com/playlist?id=12584824470&uct2=U2FsdGVkX18DQ1Tv/yIAB0SmQ/xQATUKZr/EKB8bmMU="
+      - "https://music.163.com/playlist?id=12584824470"
 menu:
   home: / || home
   archives: /archives/ || list-alt
