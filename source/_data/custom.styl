@@ -56,6 +56,13 @@ html {
   transition: none !important;
 }
 
+// Do not leave later homepage entries invisible if the theme's intersection
+// observer misses its 30% visibility threshold near the bottom of the feed.
+// Opacity only preserves ShokaX's native alternating two-column layout.
+.segments > .item {
+  opacity: 1 !important;
+}
+
 // The floating controls also switch their position at the same scroll point.
 // Removing that transition avoids a second compositor repaint at the footer.
 #tool,
