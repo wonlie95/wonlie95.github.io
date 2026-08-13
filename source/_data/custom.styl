@@ -10,7 +10,14 @@ html {
 @media (min-width: 992px) {
   #sidebar,
   #sidebar.affix {
+    overflow: visible;
+    scrollbar-width: none;
     transition: none !important;
+  }
+
+  #sidebar::-webkit-scrollbar,
+  #sidebar.affix::-webkit-scrollbar {
+    display: none;
   }
 
   #sidebar > .inner,
