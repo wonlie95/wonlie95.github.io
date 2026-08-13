@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "postinstall": "node scripts/patch-shokax-waline.js",
-    "build": "hexo generate",
+    "build": "node scripts/prepare-shokax-build.js && hexo generate",
     "clean": "hexo clean",
     "sync:notion": "node tools/sync-notion.mjs",
     "deploy": "hexo deploy",
-    "server": "hexo server"
+    "server": "node scripts/prepare-shokax-build.js && hexo server"
   },
   "hexo": {
     "version": "7.3.0"

@@ -26,19 +26,17 @@ const original = `  if (__shokax_waline__) {
   }
 `
 
-if (!fs.existsSync(target)) process.exit(0)
+if (fs.existsSync(target)) {
+  const source = fs.readFileSync(target, 'utf8')
+  if (!source.includes('// Local fix: avoid rendering recent comments without its widget.')) {
+    if (!source.includes(original)) {
+      throw new Error('Unsupported ShokaX refresh.ts: Waline recent-comments block was not found.')
+    }
 
-const source = fs.readFileSync(target, 'utf8')
-if (source.includes('// Local fix: avoid rendering recent comments without its widget.')) {
-  process.exit(0)
-}
-
-if (!source.includes(original)) {
-  throw new Error('Unsupported ShokaX refresh.ts: Waline recent-comments block was not found.')
-}
-
-const replacement = `  // Local fix: avoid rendering recent comments without its widget.
+    const replacement = `  // Local fix: avoid rendering recent comments without its widget.
   // Article comments and page views are initialized separately above.
 `
 
-fs.writeFileSync(target, source.replace(original, replacement))
+    fs.writeFileSync(target, source.replace(original, replacement))
+  }
+}
