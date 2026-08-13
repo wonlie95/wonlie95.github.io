@@ -18,6 +18,18 @@ const target = path.join(
   'refresh.ts'
 )
 
+const handles = path.join(
+  __dirname,
+  '..',
+  'node_modules',
+  'hexo-theme-shokax',
+  'source',
+  'js',
+  '_app',
+  'globals',
+  'handles.ts'
+)
+
 const head = path.join(
   __dirname,
   '..',
@@ -44,6 +56,31 @@ const observer = `          if (__shokax_waline__) {
             })
           }
 `
+const bundledObserver = `          // Mount only the bundled Waline comment UI. Page views stay off.
+          import('../components/comments').then(({walineComment}) => {
+            walineComment()
+          }).catch(console.error)
+`
+const immediateComments = `    if (__shokax_waline__) {
+      import('../components/comments').then(({walineComment}) => {
+        walineComment()
+        document.querySelector('.waline-status')?.remove()
+      }).catch((error) => {
+        console.error(error)
+        const status = document.querySelector('.waline-status')
+        if (status) status.textContent = '评论区暂时无法加载，请稍后刷新重试。'
+      })
+    }
+`
+const immediateCommentBlock = `  const cpel = document.getElementById('copyright')
+  if (cpel) {
+${immediateComments}    if (__shokax_twikoo__) {
+      import('../components/tcomments').then(({twikooComment}) => {
+        twikooComment()
+      }).catch(console.error)
+    }
+  }
+`
 const katex = "  await import('katex/dist/contrib/copy-tex.mjs')"
 const postBeauty = "  const pagePost = await import('../page/post')\n  await pagePost.postBeauty()"
 
@@ -55,13 +92,37 @@ if (fs.existsSync(target)) {
 `)
   }
   if (source.includes(observer)) {
-    source = source.replace(observer, `          // Local fix: Waline is mounted by the non-blocking fallback.
+    source = source.replace(observer, immediateComments)
+  } else if (source.includes(bundledObserver)) {
+    source = source.replace(bundledObserver, immediateComments)
+  } else if (source.includes('// Local fix: Waline is mounted by the non-blocking fallback.')) {
+    source = source.replace(`          // Local fix: Waline is mounted by the non-blocking fallback.
           // Do not start network work from the bottom scroll observer.
+`, `          // Mount only the bundled Waline comment UI. Page views stay off.
+          import('../components/comments').then(({walineComment}) => {
+            walineComment()
+          }).catch(console.error)
 `)
   }
+  // ShokaX normally waits for the copyright card to intersect the viewport.
+  // That couples comment startup to scrolling and caused the page to lock at
+  // the exact point where the observer fired. Initialize once with the page.
+  source = source.replace(
+    /  const cpel = document\.getElementById\('copyright'\)[\s\S]*?\n  }\n\n  \/\/ Local fix:/,
+    `${immediateCommentBlock}\n  // Local fix:`
+  )
   source = source.replace(katex, "  if (LOCAL.copy_tex) import('katex/dist/contrib/copy-tex.mjs').catch(console.error)")
   source = source.replace(postBeauty, "  import('../page/post').then(({postBeauty}) => postBeauty()).catch(console.error)")
   fs.writeFileSync(target, source)
+}
+
+if (fs.existsSync(handles)) {
+  let source = fs.readFileSync(handles, 'utf8')
+  const sidebarAffix = "  sideBar.classList.toggle('affix', window.scrollY > headerHight && document.body.offsetWidth >= 991)"
+  if (source.includes(sidebarAffix)) {
+    source = source.replace(sidebarAffix, "  // Local fix: keep the desktop sidebar in normal flow to avoid scroll jumps.")
+  }
+  fs.writeFileSync(handles, source)
 }
 
 // ShokaX 0.5 expects page.tags to be a Hexo Query object.  Static pages
@@ -94,6 +155,8 @@ if (fs.existsSync(layoutRoot)) {
 const helper = path.join(layoutRoot, '..', 'scripts', 'helpers', 'list_categories.js')
 if (fs.existsSync(helper)) {
   let source = fs.readFileSync(helper, 'utf8')
-  source = source.replace(/page\.categories\.toArray\(\)/g, "(typeof page.categories.toArray === 'function' ? page.categories.toArray() : page.categories)")
+  const originalCategoryLine = '  const cat = page.categories.toArray();'
+  const safeCategoryLine = "  const cat = typeof page.categories.toArray === 'function' ? page.categories.toArray() : page.categories;"
+  if (source.includes(originalCategoryLine)) source = source.replace(originalCategoryLine, safeCategoryLine)
   fs.writeFileSync(helper, source)
 }

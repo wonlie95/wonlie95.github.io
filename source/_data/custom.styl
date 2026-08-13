@@ -173,3 +173,66 @@ html {
     font-size: 1.65rem;
   }
 }
+
+// Soft, compact Waline card that follows ShokaX light/dark mode.
+#comments {
+  --waline-theme-color: #ef86a4;
+  --waline-active-color: #e7658d;
+  --waline-color: #5f5961;
+  --waline-bg-color: rgba(255, 249, 252, .92);
+  --waline-bg-color-light: #fff4f8;
+  --waline-bg-color-hover: #ffeaf1;
+  --waline-border-color: rgba(222, 154, 177, .32);
+  --waline-disable-bg-color: #f4edf0;
+  --waline-disable-color: #aaa0a5;
+  margin-top: 2rem;
+  padding: 1.15rem;
+  border: 1px solid rgba(222, 154, 177, .28);
+  border-radius: 1.35rem;
+  background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(255,240,246,.9));
+  box-shadow: 0 .75rem 2rem rgba(194, 105, 139, .12);
+}
+
+#comments .wl-panel,
+#comments .wl-editor,
+#comments .wl-input {
+  border-radius: .9rem;
+}
+
+#comments .wl-btn.primary {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f29ab3, #e96f98);
+  box-shadow: 0 .35rem .9rem rgba(233, 111, 152, .25);
+}
+
+.waline-status {
+  margin: 0;
+  color: #b47b90;
+  text-align: center;
+  font-size: .9rem;
+}
+
+html[data-theme="dark"] #comments {
+  --waline-theme-color: #f09ab6;
+  --waline-active-color: #ffb1c8;
+  --waline-color: #d8d0d5;
+  --waline-white: #252329;
+  --waline-bg-color: #29272e;
+  --waline-bg-color-light: #323039;
+  --waline-bg-color-hover: #393640;
+  --waline-border-color: #4b4652;
+  --waline-disable-bg-color: #35323a;
+  --waline-disable-color: #8f8892;
+  border-color: rgba(240, 154, 182, .18);
+  background: linear-gradient(145deg, #29272e, #242229);
+  box-shadow: 0 .8rem 2rem rgba(0, 0, 0, .28);
+}
+
+html[data-theme="dark"] #comments .wl-editor,
+html[data-theme="dark"] #comments .wl-input,
+html[data-theme="dark"] #comments textarea,
+html[data-theme="dark"] #comments input {
+  color: #eee8ec !important;
+  background: #211f25 !important;
+}

@@ -1,47 +1,9 @@
 'use strict'
 
-// ShokaX may fail to mount Waline when its lazy IntersectionObserver misses
-// the comments area. Mount it explicitly on article pages as a fallback.
+// Waline is bundled by ShokaX. This file now only provides a small status
+// placeholder; the theme's own client mounts comments without a second CDN.
 hexo.extend.filter.register('theme_inject', (injects) => {
-  injects.head.raw('waline-fallback-style.pug', `
-link(rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css")
-  `)
-  injects.bodyEnd.raw('waline-fallback.pug', `
-script(type="module").
-  (() => {
-    const mount = async () => {
-      const el = document.querySelector('#comments');
-      // Let ShokaX's normal initializer win if it has already rendered.
-      if (!el || el.dataset.walineMounted === 'true' || el.querySelector('.wl-comment')) return;
-      el.dataset.walineMounted = 'true';
-      try {
-        const { init } = await import('https://unpkg.com/@waline/client@v3/dist/waline.js');
-        init({
-          el,
-          serverURL: 'https://waline-ice-world.vercel.app',
-          lang: 'zh-CN',
-          path: window.location.pathname,
-          meta: ['nick', 'link'],
-          requiredMeta: [],
-          login: 'disable',
-          pageSize: 10,
-          pageview: false
-        });
-      } catch (error) {
-        el.dataset.walineMounted = 'false';
-        console.error('[Waline] fallback mount failed', error);
-      }
-    };
-    // Mount during an idle slice so comment loading cannot block scrolling.
-    const schedule = () => {
-      if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(mount, { timeout: 2500 });
-      } else {
-        window.setTimeout(mount, 1200);
-      }
-    };
-    schedule();
-    document.addEventListener('pjax:success', schedule);
-  })();
+  injects.comment.raw('waline-status.pug', `
+p(class="waline-status" aria-live="polite") 评论区正在加载…
   `)
 })

@@ -53,17 +53,13 @@ waline:
   serverURL: "https://waline-ice-world.vercel.app" # Waline production service address
   lang: "zh-CN" # 评论界面语言
   locale: {} # 本地化替换，详见 waline 文档
-  emoji: # 表情包，默认为 waline 官方配置
-    - https://unpkg.com/@waline/emojis@1.0.1/weibo
-    - https://unpkg.com/@waline/emojis@1.0.1/alus
-    - https://unpkg.com/@waline/emojis@1.0.1/bilibili
-    - https://unpkg.com/@waline/emojis@1.0.1/qq
-    - https://unpkg.com/@waline/emojis@1.0.1/tieba
-    - https://unpkg.com/@waline/emojis@1.0.1/tw-emoji
+  # Do not block the whole comment component on six external unpkg emoji packs.
+  # A locally hosted pack can be added later without reintroducing this delay.
+  emoji: false
   meta: # 评论可以填写的项目
     - nick
     - link
-  requiredMeta: # 评论必须填写的项目
+  requiredMeta: [] # 不强制要求填写昵称、邮箱或网址；必须是数组，不能留成 null
 
   wordLimit: 0 # 评论字数上限 (不建议为 0)
   pageSize: 10 # 每页显示评论条数
