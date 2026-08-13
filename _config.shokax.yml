@@ -50,7 +50,7 @@ pagefind:
 
 waline:
   enable: true # 是否启用
-  serverURL: "" # waline 服务端地址
+  serverURL: "https://waline-ice-world-lknof0h0v-wonlie95s-projects.vercel.app" # waline 服务端地址
   lang: "zh-CN" # 评论界面语言
   locale: {} # 本地化替换，详见 waline 文档
   emoji: # 表情包，默认为 waline 官方配置
