@@ -44,6 +44,8 @@ const observer = `          if (__shokax_waline__) {
             })
           }
 `
+const katex = "  await import('katex/dist/contrib/copy-tex.mjs')"
+const postBeauty = "  const pagePost = await import('../page/post')\n  await pagePost.postBeauty()"
 
 if (fs.existsSync(target)) {
   let source = fs.readFileSync(target, 'utf8')
@@ -57,6 +59,8 @@ if (fs.existsSync(target)) {
           // Do not start network work from the bottom scroll observer.
 `)
   }
+  source = source.replace(katex, "  if (LOCAL.copy_tex) import('katex/dist/contrib/copy-tex.mjs').catch(console.error)")
+  source = source.replace(postBeauty, "  import('../page/post').then(({postBeauty}) => postBeauty()).catch(console.error)")
   fs.writeFileSync(target, source)
 }
 
