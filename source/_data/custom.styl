@@ -39,15 +39,21 @@ html {
   display: none !important;
 }
 
-// The stock homepage only reveals a post card after 30% of it enters the
-// viewport. With uneven cover heights that observer can stop revealing later
-// cards, making the feed look as if it froze. Keep every card visible.
-.index.wrap article.item,
-.index.wrap section.item {
-  display: block !important;
-  opacity: 1 !important;
+// Keep the homepage hero as one still background instead of ShokaX's rotating,
+// zooming cover slideshow. The first selected cover remains visible.
+#imgs .item {
   animation: none !important;
   transform: none !important;
+  opacity: 0 !important;
+}
+
+#imgs .item:first-child {
+  opacity: 1 !important;
+}
+
+#imgs::before {
+  background: transparent !important;
+  transition: none !important;
 }
 
 // The floating controls also switch their position at the same scroll point.
