@@ -55,6 +55,6 @@ hexo.extend.filter.register('after_render:html', (html, data) => {
   if (data.path !== 'archives/index.html') return html
   return html.replace(
     /<div class="collapse wrap">[\s\S]*?(<div id="sidebar">)/,
-    `${renderArchive()}$1`
+    `${renderArchive()}</div>$1`
   )
 })
