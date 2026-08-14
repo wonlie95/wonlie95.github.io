@@ -10,6 +10,11 @@ homeConfig:
 loader:
   start: false
   switch: false
+# Open in dark mode by default. Visitors can still use the theme button to
+# switch to light mode, and that choice remains stored in their browser.
+darkmode: true
+auto_dark:
+  enable: false
 # Aether is ShokaX's Markdown renderer.  Allow the preserved About page's
 # player markup to render instead of being displayed as literal text.
 aether:

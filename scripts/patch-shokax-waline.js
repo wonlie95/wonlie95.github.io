@@ -50,6 +50,18 @@ const nyxAudioPlayer = path.join(
   'components',
   'AudioPlayer.vue'
 )
+const themeColor = path.join(
+  __dirname,
+  '..',
+  'node_modules',
+  'hexo-theme-shokax',
+  'source',
+  'js',
+  '_app',
+  'globals',
+  'themeColor.ts'
+)
+const mainLayout = path.join(layoutRoot, '_partials', 'layout.pug')
 
 const original = `  if (__shokax_waline__) {
     import('../components/comments').then(async ({walineRecentComments}) => {
@@ -150,8 +162,9 @@ if (fs.existsSync(nyxAudioPlayer)) {
     await playlist.fetchPlaylist()
   })
   Promise.allSettled(requests).then(() => {
-    // Refresh computed song data after the remote playlists settle.
-    playingStore.currentId++
+    // Start from the first song as soon as the remote playlist is ready.
+    if (!startFirstTrack())
+      playingStore.currentId++
   })
 }`
   const blockingPlaylistPattern = /if \(playingStore\.playlists\.length === 0\) \{\r?\n  await Promise\.all\(props\.playlistURLs\.map\(async \(url, index\) => \{\r?\n    const playlist = new PlayList\(url\.url, url\.name, index\)\r?\n    playingStore\.playlists\.push\(playlist\)\r?\n    playlist\.parserURL\(\)\r?\n    await playlist\.fetchPlaylist\(\)\r?\n  \}\)\)\r?\n\}/
@@ -164,6 +177,20 @@ if (fs.existsSync(nyxAudioPlayer)) {
       'if (playingStore.playlists.length === 0) {\n  const requests =',
       'if (!playingStore.playlists.some(playlist => playlist.playlist.length > 0)) {\n  // Discard an empty list persisted by a previous interrupted request.\n  playingStore.playlists.splice(0)\n  const requests ='
     )
+    fs.writeFileSync(nyxAudioPlayer, source)
+  }
+
+  const oldPlaylistReady = `  Promise.allSettled(requests).then(() => {
+    // Refresh computed song data after the remote playlists settle.
+    playingStore.currentId++
+  })`
+  const autoplayFirstWhenReady = `  Promise.allSettled(requests).then(() => {
+    // Start from the first song as soon as the remote playlist is ready.
+    if (!startFirstTrack())
+      playingStore.currentId++
+  })`
+  if (source.includes(oldPlaylistReady)) {
+    source = source.replace(oldPlaylistReady, autoplayFirstWhenReady)
     fs.writeFileSync(nyxAudioPlayer, source)
   }
 
@@ -183,6 +210,45 @@ if (fs.existsSync(nyxAudioPlayer)) {
   })
 })`
   const autoplayWatcher = `let waitingForFirstGesture = false
+let volumeFadeFrame: number | undefined
+const volumeFadeDuration = 1600
+
+function fadeVolume(target: number, done?: () => void) {
+  const player = audioPlayer.value
+  if (!player)
+    return
+  if (volumeFadeFrame !== undefined)
+    cancelAnimationFrame(volumeFadeFrame)
+  const initialVolume = player.volume
+  const startedAt = performance.now()
+  const step = (now: number) => {
+    const progress = Math.min((now - startedAt) / volumeFadeDuration, 1)
+    // Smoothstep keeps both ends of the fade soft instead of abrupt.
+    const eased = progress * progress * (3 - 2 * progress)
+    player.volume = initialVolume + (target - initialVolume) * eased
+    if (progress < 1)
+      volumeFadeFrame = requestAnimationFrame(step)
+    else {
+      volumeFadeFrame = undefined
+      done?.()
+    }
+  }
+  volumeFadeFrame = requestAnimationFrame(step)
+}
+
+function startFirstTrack() {
+  const firstPlaylist = playingStore.playlists[0]
+  if (!firstPlaylist?.playlist?.length)
+    return false
+  playingStore.currentPlaylistIndex = 0
+  firstPlaylist.index = 0
+  playingStore.currentTime = 0
+  if (audioPlayer.value)
+    audioPlayer.value.currentTime = 0
+  playingStore.playing = true
+  playingStore.currentId++
+  return true
+}
 
 function armFirstGesturePlayback() {
   if (waitingForFirstGesture)
@@ -192,11 +258,10 @@ function armFirstGesturePlayback() {
   const resume = () => {
     events.forEach(event => document.removeEventListener(event, resume))
     waitingForFirstGesture = false
+    if (!playingStore.currentSong)
+      startFirstTrack()
     playingStore.playing = true
-    audioPlayer.value?.play().catch(() => {
-      playingStore.playing = false
-      armFirstGesturePlayback()
-    })
+    syncPlayback()
   }
   events.forEach(event => document.addEventListener(event, resume, { once: true, passive: true }))
 }
@@ -205,13 +270,19 @@ async function syncPlayback() {
   if (audioPlayer.value === null)
     return
   if (!playingStore.playing) {
-    audioPlayer.value.pause()
+    fadeVolume(0, () => {
+      if (!playingStore.playing)
+        audioPlayer.value?.pause()
+    })
     return
   }
   if (playingStore.mode === 'loop')
     audioPlayer.value.loop = true
   try {
+    if (audioPlayer.value.paused)
+      audioPlayer.value.volume = 0
     await audioPlayer.value.play()
+    fadeVolume(1)
   }
   catch {
     // Browsers commonly block audible autoplay. Resume on the visitor's first
@@ -224,11 +295,17 @@ async function syncPlayback() {
 onMounted(() => {
   watch(() => playingStore.currentId, syncPlayback)
   armFirstGesturePlayback()
-  playingStore.playing = true
-  playingStore.currentId++
+  if (audioPlayer.value)
+    audioPlayer.value.volume = 0
+  startFirstTrack()
 })`
+  const customizedPlaybackPattern = /let waitingForFirstGesture = false[\s\S]*?onMounted\(\(\) => \{[\s\S]*?\n\}\)(?=\r?\n\r?\nif \(!playingStore\.playlists)/
   if (source.includes(originalPlaybackWatcher)) {
     source = source.replace(originalPlaybackWatcher, autoplayWatcher)
+    fs.writeFileSync(nyxAudioPlayer, source)
+  }
+  else if (customizedPlaybackPattern.test(source)) {
+    source = source.replace(customizedPlaybackPattern, autoplayWatcher)
     fs.writeFileSync(nyxAudioPlayer, source)
   }
   else {
@@ -238,6 +315,35 @@ onMounted(() => {
       fs.writeFileSync(nyxAudioPlayer, source)
     }
   }
+}
+
+// Render the initial document in dark mode so there is no white flash before
+// the client bundle loads. Migrate the old default once; later manual choices
+// made with ShokaX's theme button are still respected.
+if (fs.existsSync(mainLayout)) {
+  let source = fs.readFileSync(mainLayout, 'utf8')
+  source = source.replace(
+    "html(lang=page.language?page.language:config.language, style=theme.grayMode ? 'filter: grayscale(1);':'' )",
+    "html(lang=page.language?page.language:config.language, data-theme='dark', style=theme.grayMode ? 'filter: grayscale(1);':'' )"
+  )
+  fs.writeFileSync(mainLayout, source)
+}
+
+if (fs.existsSync(themeColor)) {
+  let source = fs.readFileSync(themeColor, 'utf8')
+  const savedTheme = "  const t = localStorage.getItem('theme')"
+  const darkDefault = `  const darkDefaultVersion = 'shokax-dark-default-v1'
+  if (localStorage.getItem(darkDefaultVersion) !== 'applied') {
+    localStorage.setItem('theme', 'dark')
+    localStorage.setItem(darkDefaultVersion, 'applied')
+  }
+  const t = localStorage.getItem('theme')`
+  const repeatedDarkDefault = /(?:  const darkDefaultVersion = 'shokax-dark-default-v1'\r?\n  if \(localStorage\.getItem\(darkDefaultVersion\) !== 'applied'\) \{\r?\n    localStorage\.setItem\('theme', 'dark'\)\r?\n    localStorage\.setItem\(darkDefaultVersion, 'applied'\)\r?\n  \}\r?\n)+  const t = localStorage\.getItem\('theme'\)/
+  if (repeatedDarkDefault.test(source))
+    source = source.replace(repeatedDarkDefault, darkDefault)
+  else if (source.includes(savedTheme))
+    source = source.replace(savedTheme, darkDefault)
+  fs.writeFileSync(themeColor, source)
 }
 
 // ShokaX 0.5 expects page.tags to be a Hexo Query object.  Static pages
