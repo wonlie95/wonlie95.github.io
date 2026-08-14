@@ -6,7 +6,7 @@ image_server:
 homeConfig:
   gradient: true
   # One shared banner for the homepage and every article page.
-  fixedCover: https://pic1.imgdb.cn/i/0346oiVFEkFnNs934Z7oPO.jpg
+  fixedCover: "https://pic1.imgdb.cn/i/0346oiVFEkFnNs934Z7oPO.jpg?v=c14c38af"
 loader:
   start: false
   switch: false
