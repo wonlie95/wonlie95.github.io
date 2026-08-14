@@ -50,14 +50,6 @@ const nyxAudioPlayer = path.join(
   'components',
   'AudioPlayer.vue'
 )
-const nyxPlayerBundle = path.join(
-  __dirname,
-  '..',
-  'node_modules',
-  'nyx-player',
-  'dist',
-  'nyx-player.js'
-)
 
 const original = `  if (__shokax_waline__) {
     import('../components/comments').then(async ({walineRecentComments}) => {
@@ -245,45 +237,6 @@ onMounted(() => {
       source = source.replace(playbackWatcherPattern, autoplayWatcher)
       fs.writeFileSync(nyxAudioPlayer, source)
     }
-  }
-
-  // Nyx Player normally seeks back to its throttled stored timestamp after
-  // every PJAX URL change. The audio element already lives outside the PJAX
-  // containers, so that seek is unnecessary and causes an audible stutter.
-  const pageChangeSeek = `const updateCurrentTime = throttle((event: Event) => {
-  const currentTime = (event.target as HTMLAudioElement).currentTime
-  if (playingStore.lastPage === window.location.pathname) {
-    playingStore.setCurrentTime(currentTime)
-  }
-  else {
-    (event.target as HTMLAudioElement).currentTime = playingStore.currentTime
-    playingStore.lastPage = window.location.pathname
-  }
-  playingStore.songDuration = (event.target as HTMLAudioElement).duration || playingStore.songDuration
-}, 250)`
-  const seamlessPageChange = `const updateCurrentTime = throttle((event: Event) => {
-  const element = event.target as HTMLAudioElement
-  playingStore.setCurrentTime(element.currentTime)
-  playingStore.lastPage = window.location.pathname
-  playingStore.songDuration = element.duration || playingStore.songDuration
-}, 250)`
-  const pageChangeSeekPattern = /const updateCurrentTime = throttle\(\(event: Event\) => \{\r?\n  const currentTime = \(event\.target as HTMLAudioElement\)\.currentTime\r?\n  if \(playingStore\.lastPage === window\.location\.pathname\) \{\r?\n    playingStore\.setCurrentTime\(currentTime\)\r?\n  \}\r?\n  else \{\r?\n    \(event\.target as HTMLAudioElement\)\.currentTime = playingStore\.currentTime\r?\n    playingStore\.lastPage = window\.location\.pathname\r?\n  \}\r?\n  playingStore\.songDuration = \(event\.target as HTMLAudioElement\)\.duration \|\| playingStore\.songDuration\r?\n\}, 250\)/
-  if (source.includes(pageChangeSeek) || pageChangeSeekPattern.test(source)) {
-    source = source.replace(pageChangeSeekPattern, seamlessPageChange)
-    fs.writeFileSync(nyxAudioPlayer, source)
-  }
-}
-
-// ShokaX imports Nyx Player's published ESM bundle rather than its Vue source.
-// Apply the same no-seek fix to that bundle so it reaches the browser build.
-if (fs.existsSync(nyxPlayerBundle)) {
-  const source = fs.readFileSync(nyxPlayerBundle, 'utf8')
-  const pageChangeSeekBundlePattern = /([A-Za-z_$][\w$]*)\.lastPage===window\.location\.pathname\?\1\.setCurrentTime\(([A-Za-z_$][\w$]*)\):\(([A-Za-z_$][\w$]*)\.target\.currentTime=\1\.currentTime,\1\.lastPage=window\.location\.pathname\)/
-  if (pageChangeSeekBundlePattern.test(source)) {
-    fs.writeFileSync(
-      nyxPlayerBundle,
-      source.replace(pageChangeSeekBundlePattern, '$1.setCurrentTime($2),$1.lastPage=window.location.pathname')
-    )
   }
 }
 
