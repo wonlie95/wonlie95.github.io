@@ -209,9 +209,11 @@ if (fs.existsSync(nyxAudioPlayer)) {
     }
   })
 })`
-  const autoplayWatcher = `let waitingForFirstGesture = false
+  const autoplayWatcher = `let resumeOnFirstGesture: (() => void) | undefined
+let userGestureUnlocked = false
 let volumeFadeFrame: number | undefined
 const volumeFadeDuration = 1600
+const gestureEvents = ['pointerdown', 'touchstart', 'keydown', 'click'] as const
 
 function fadeVolume(target: number, done?: () => void) {
   const player = audioPlayer.value
@@ -250,43 +252,73 @@ function startFirstTrack() {
   return true
 }
 
-function armFirstGesturePlayback() {
-  if (waitingForFirstGesture)
+function disarmFirstGesturePlayback() {
+  if (!resumeOnFirstGesture)
     return
-  waitingForFirstGesture = true
-  const events = ['pointerdown', 'touchstart', 'keydown', 'click'] as const
-  const resume = () => {
-    events.forEach(event => document.removeEventListener(event, resume))
-    waitingForFirstGesture = false
+  gestureEvents.forEach(event => window.removeEventListener(event, resumeOnFirstGesture!, true))
+  resumeOnFirstGesture = undefined
+}
+
+function armFirstGesturePlayback() {
+  if (resumeOnFirstGesture)
+    return
+  resumeOnFirstGesture = () => {
+    disarmFirstGesturePlayback()
+    userGestureUnlocked = true
     if (!playingStore.currentSong)
       startFirstTrack()
     playingStore.playing = true
     syncPlayback()
   }
-  events.forEach(event => document.addEventListener(event, resume, { once: true, passive: true }))
+  gestureEvents.forEach(event => window.addEventListener(event, resumeOnFirstGesture!, { once: true, capture: true, passive: true }))
 }
 
 async function syncPlayback() {
-  if (audioPlayer.value === null)
+  const player = audioPlayer.value
+  if (player === null)
     return
   if (!playingStore.playing) {
     fadeVolume(0, () => {
       if (!playingStore.playing)
-        audioPlayer.value?.pause()
+        player.pause()
     })
     return
   }
   if (playingStore.mode === 'loop')
-    audioPlayer.value.loop = true
+    player.loop = true
+  const starting = player.paused
   try {
-    if (audioPlayer.value.paused)
-      audioPlayer.value.volume = 0
-    await audioPlayer.value.play()
-    fadeVolume(1)
+    if (!userGestureUnlocked)
+      armFirstGesturePlayback()
+    if (starting) {
+      // Muted media is allowed to start automatically by modern browsers.
+      // Once a real gesture unlocks media, start audibly inside that gesture.
+      player.volume = 0
+      player.muted = userGestureUnlocked ? !playingStore.enableVolume : true
+    }
+    await player.play()
+    if (userGestureUnlocked) {
+      disarmFirstGesturePlayback()
+      player.muted = !playingStore.enableVolume
+      fadeVolume(1)
+      return
+    }
+    requestAnimationFrame(() => {
+      if (!playingStore.playing)
+        return
+      player.muted = !playingStore.enableVolume
+      fadeVolume(1)
+      window.setTimeout(() => {
+        // Safari may pause when a muted autoplay is programmatically unmuted.
+        if (playingStore.playing && player.paused) {
+          playingStore.playing = false
+          armFirstGesturePlayback()
+        }
+      }, 250)
+    })
   }
   catch {
-    // Browsers commonly block audible autoplay. Resume on the visitor's first
-    // interaction instead of showing a false playing state.
+    player.muted = !playingStore.enableVolume
     playingStore.playing = false
     armFirstGesturePlayback()
   }
@@ -294,12 +326,14 @@ async function syncPlayback() {
 
 onMounted(() => {
   watch(() => playingStore.currentId, syncPlayback)
+  // Keep a capture-phase fallback ready even if the autoplay promise settles
+  // differently across browsers.
   armFirstGesturePlayback()
   if (audioPlayer.value)
     audioPlayer.value.volume = 0
   startFirstTrack()
 })`
-  const customizedPlaybackPattern = /let waitingForFirstGesture = false[\s\S]*?onMounted\(\(\) => \{[\s\S]*?\n\}\)(?=\r?\n\r?\nif \(!playingStore\.playlists)/
+  const customizedPlaybackPattern = /let (?:waitingForFirstGesture = false|resumeOnFirstGesture:[\s\S]*?undefined)[\s\S]*?onMounted\(\(\) => \{[\s\S]*?\n\}\)(?=\r?\n\r?\nif \(!playingStore\.playlists)/
   if (source.includes(originalPlaybackWatcher)) {
     source = source.replace(originalPlaybackWatcher, autoplayWatcher)
     fs.writeFileSync(nyxAudioPlayer, source)
