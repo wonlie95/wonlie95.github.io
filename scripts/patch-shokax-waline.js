@@ -42,6 +42,7 @@ const head = path.join(
   'head_com.pug'
 )
 const layoutRoot = path.join(__dirname, '..', 'node_modules', 'hexo-theme-shokax', 'layout')
+const themeConfig = path.join(__dirname, '..', 'node_modules', 'hexo-theme-shokax', '_config.yml')
 const nyxPlayerRoot = path.join(__dirname, '..', 'node_modules', 'nyx-player')
 const nyxPlayerCss = path.join(nyxPlayerRoot, 'dist', 'nyx-player.css')
 const nyxMainPlayer = path.join(nyxPlayerRoot, 'src', 'NyxPlayer.vue')
@@ -83,6 +84,14 @@ const siteInitSource = path.join(
   'pjax',
   'siteInit.ts'
 )
+
+// Hexo deep-merges theme defaults with _config.shokax.yml, so omitting the
+// Alipay key in the site config would otherwise keep the theme's default item.
+if (fs.existsSync(themeConfig)) {
+  const source = fs.readFileSync(themeConfig, 'utf8')
+  const withoutAlipay = source.replace(/^\s{4}alipay:\s*\/alipay\.png\s*\r?\n/m, '')
+  if (source !== withoutAlipay) fs.writeFileSync(themeConfig, withoutAlipay)
+}
 
 const original = `  if (__shokax_waline__) {
     import('../components/comments').then(async ({walineRecentComments}) => {
@@ -884,15 +893,9 @@ if (fs.existsSync(themeColor)) {
   fs.writeFileSync(themeColor, source)
 }
 
-// ShokaX 0.5 expects page.tags to be a Hexo Query object.  Static pages
-// imported from Notion may expose a plain array instead.
-if (fs.existsSync(head)) {
-  const source = fs.readFileSync(head, 'utf8')
-  const oldLine = "- var keywords='',tmp=page?.tags?.toArray()"
-  const newLine = "- var keywords='',tmp=page?.tags ? (typeof page.tags.toArray === 'function' ? page.tags.toArray() : page.tags) : undefined"
-  if (source.includes(oldLine)) fs.writeFileSync(head, source.replace(oldLine, newLine))
-}
-
+// ShokaX 0.5 expects tag/category collections to be Hexo Query objects.
+// Notion pages can expose arrays instead. Normalize the complete Pug statement
+// so this patch stays idempotent even when npm runs postinstall repeatedly.
 if (fs.existsSync(layoutRoot)) {
   const files = []
   const walk = (dir) => {
@@ -905,8 +908,16 @@ if (fs.existsSync(layoutRoot)) {
   walk(layoutRoot)
   for (const file of files) {
     let source = fs.readFileSync(file, 'utf8')
-    source = source.replace(/(post|page)\.tags\.toArray\(\)/g, (match, name) => `(typeof ${name}.tags.toArray === 'function' ? ${name}.tags.toArray() : ${name}.tags)`)
-    source = source.replace(/(post|page)\.categories\.toArray\(\)/g, (match, name) => `(typeof ${name}.categories.toArray === 'function' ? ${name}.categories.toArray() : ${name}.categories)`)
+    source = source.replace(
+      /^(\s*each\s+\w+(?:,\w+)?\s+in\s+).*?\b(post|page)\.(tags|categories).*$/gm,
+      (match, prefix, name, collection) => `${prefix}(typeof ${name}.${collection}.toArray === 'function' ? ${name}.${collection}.toArray() : ${name}.${collection})`,
+    )
+    if (file === head) {
+      source = source.replace(
+        /^\s*- var keywords='',tmp=.*$/m,
+        "- var keywords='',tmp=page?.tags ? (typeof page.tags.toArray === 'function' ? page.tags.toArray() : page.tags) : undefined",
+      )
+    }
     if (source !== fs.readFileSync(file, 'utf8')) fs.writeFileSync(file, source)
   }
 }

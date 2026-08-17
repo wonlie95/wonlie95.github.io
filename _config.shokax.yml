@@ -62,6 +62,11 @@ footer:
   since: 2023
   count: false
   powered: true
+# Keep the original reward card, but only show the working WeChat option.
+reward:
+  enable: true
+  account:
+    wechatpay: /wechatpay.png
 pagefind:
   enable: false
 waline:

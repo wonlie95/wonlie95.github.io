@@ -56,6 +56,33 @@
     }
   };
 
+  const syncPageStyles = async (nextDocument) => {
+    const nextStyles = [...nextDocument.querySelectorAll('link[rel="stylesheet"][href]')];
+    const nextHrefs = new Set(nextStyles.map(style => style.href));
+    const currentHrefs = new Set(
+      [...document.querySelectorAll('link[rel="stylesheet"][href]')].map(style => style.href),
+    );
+
+    const loads = nextStyles
+      .filter(style => !currentHrefs.has(style.href))
+      .map((style) => {
+        const clone = document.importNode(style, true);
+        clone.dataset.seamlessPageAsset = 'true';
+        const loaded = new Promise((resolve) => {
+          clone.addEventListener('load', resolve, { once: true });
+          clone.addEventListener('error', resolve, { once: true });
+        });
+        document.head.append(clone);
+        return loaded;
+      });
+
+    await Promise.all(loads);
+    document.querySelectorAll('link[data-seamless-page-asset="true"]').forEach((style) => {
+      if (!nextHrefs.has(style.href))
+        style.remove();
+    });
+  };
+
   const navigate = async (url, pushHistory = true) => {
     if (navigating)
       activeRequest?.abort();
@@ -72,6 +99,7 @@
         throw new Error(`Navigation failed: ${response.status}`);
       const html = await response.text();
       const nextDocument = new DOMParser().parseFromString(html, 'text/html');
+      await syncPageStyles(nextDocument);
       replaceDynamicContent(nextDocument);
       if (pushHistory)
         history.pushState({ seamless: true }, '', url.href);
