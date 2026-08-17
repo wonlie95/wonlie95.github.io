@@ -1,7 +1,14 @@
 # Hexo site configuration
 title: "冰霜の世界"
 subtitle: ICE
-description: Seeing the world with my own eyes and for a minute I was embarrassed by my short insight.
+description: >-
+  Seeing the world with my own eyes and
+
+  for a minute I was embarrassed by my short insight
+
+  Hoping that through my finder
+
+  You'll find another answer
 keywords: ""
 author: When_Lie
 language: zh-CN

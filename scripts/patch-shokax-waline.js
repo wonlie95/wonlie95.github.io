@@ -52,6 +52,8 @@ const nyxAudioPlayer = path.join(
   'AudioPlayer.vue'
 )
 const nyxAudioCover = path.join(nyxPlayerRoot, 'src', 'components', 'preview', 'AudioCover.vue')
+const nyxPlayingStore = path.join(nyxPlayerRoot, 'src', 'components', 'playingStore.ts')
+const nyxVolumeButton = path.join(nyxPlayerRoot, 'src', 'components', 'controller', 'VolumeBtn.vue')
 const nyxMetingConstants = path.join(nyxPlayerRoot, 'src', 'components', 'metingapi', 'constants.ts')
 const nyxPlaylist = path.join(nyxPlayerRoot, 'src', 'components', 'metingapi', 'playlist.ts')
 const nyxLyric = path.join(nyxPlayerRoot, 'src', 'components', 'metingapi', 'lrc.ts')
@@ -112,6 +114,97 @@ const immediateComments = `    if (__shokax_waline__) {
       })
     }
 `
+
+if (fs.existsSync(nyxPlayingStore)) {
+  let source = fs.readFileSync(nyxPlayingStore, 'utf8')
+  source = source.replace('      volume: 0.3,', '      volume: 0.15,')
+  if (!source.includes('volume: 0.15')) {
+    source = source.replace(
+      '      enableVolume: true,',
+      '      enableVolume: true,\n      volume: 0.15,',
+    )
+  }
+  fs.writeFileSync(nyxPlayingStore, source)
+}
+
+if (fs.existsSync(nyxVolumeButton)) {
+  fs.writeFileSync(nyxVolumeButton, `<script setup lang="ts">
+import { computed } from 'vue'
+import { usePlayingStore } from '../playingStore'
+
+const playingStore = usePlayingStore()
+
+const enableVolume = computed(() => playingStore.enableVolume)
+const volumePercent = computed(() => Math.round(normalizedVolume() * 100))
+
+function normalizedVolume() {
+  const value = Number(playingStore.volume)
+  return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0.15
+}
+
+function toggleVolume() {
+  playingStore.enableVolume = !playingStore.enableVolume
+  if (playingStore.enableVolume && normalizedVolume() === 0)
+    playingStore.volume = 0.15
+}
+
+function updateVolume(event: Event) {
+  const input = event.target as HTMLInputElement
+  playingStore.volume = Math.min(1, Math.max(0, Number(input.value)))
+  playingStore.enableVolume = playingStore.volume > 0
+}
+</script>
+
+<template>
+  <div class="volume-control flex items-center gap-1.5" title="调整音量">
+    <div
+      class="volume-icon flex-shrink-0 text-xl"
+      :class="{ 'i-ri:volume-up-line': enableVolume && volumePercent > 0, 'i-ri:volume-mute-line': !enableVolume || volumePercent === 0 }"
+      title="静音/恢复声音"
+      @click="toggleVolume"
+    />
+    <input
+      class="volume-slider"
+      type="range"
+      min="0"
+      max="1"
+      step="0.01"
+      :value="normalizedVolume()"
+      :aria-label="\`音量 \${volumePercent}%\`"
+      @input="updateVolume"
+    >
+    <span class="volume-value">{{ volumePercent }}%</span>
+  </div>
+</template>
+
+<style scoped>
+.volume-control {
+  width: 30% !important;
+  min-width: 7.5rem;
+  cursor: default;
+}
+
+.volume-icon {
+  width: 1.25rem !important;
+  cursor: pointer;
+}
+
+.volume-slider {
+  width: 4.5rem;
+  height: 0.25rem;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+.volume-value {
+  min-width: 2.2rem;
+  color: var(--secondary-text);
+  font-size: 0.72rem;
+  text-align: right;
+}
+</style>
+`)
+}
 const immediateCommentBlock = `  const cpel = document.getElementById('copyright')
   if (cpel) {
 ${immediateComments}    if (__shokax_twikoo__) {
@@ -298,6 +391,11 @@ function fadeVolume(target: number, done?: () => void) {
   volumeFadeFrame = requestAnimationFrame(step)
 }
 
+function preferredVolume() {
+  const value = Number(playingStore.volume)
+  return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0.15
+}
+
 function startFirstTrack() {
   const firstPlaylist = playingStore.playlists[0]
   if (!firstPlaylist?.playlist?.length)
@@ -370,20 +468,20 @@ async function syncPlayback() {
       // Muted media is allowed to start automatically by modern browsers.
       // Once a real gesture unlocks media, start audibly inside that gesture.
       player.volume = 0
-      player.muted = userGestureUnlocked ? !playingStore.enableVolume : true
+      player.muted = userGestureUnlocked ? !playingStore.enableVolume || preferredVolume() === 0 : true
     }
     await player.play()
     if (userGestureUnlocked) {
       disarmFirstGesturePlayback()
-      player.muted = !playingStore.enableVolume
-      fadeVolume(1)
+      player.muted = !playingStore.enableVolume || preferredVolume() === 0
+      fadeVolume(preferredVolume())
       return
     }
     requestAnimationFrame(() => {
       if (!playingStore.playing)
         return
-      player.muted = !playingStore.enableVolume
-      fadeVolume(1)
+      player.muted = !playingStore.enableVolume || preferredVolume() === 0
+      fadeVolume(preferredVolume())
       window.setTimeout(() => {
         // Safari may pause when a muted autoplay is programmatically unmuted.
         if (playingStore.playing && player.paused) {
@@ -402,6 +500,17 @@ async function syncPlayback() {
 
 onMounted(() => {
   watch(() => playingStore.currentId, syncPlayback)
+  watch(() => playingStore.volume, () => {
+    const player = audioPlayer.value
+    if (!player || !playingStore.playing)
+      return
+    if (volumeFadeFrame !== undefined) {
+      cancelAnimationFrame(volumeFadeFrame)
+      volumeFadeFrame = undefined
+    }
+    player.volume = preferredVolume()
+    player.muted = !playingStore.enableVolume || preferredVolume() === 0
+  })
   // Keep a capture-phase fallback ready even if the autoplay promise settles
   // differently across browsers.
   armFirstGesturePlayback()
@@ -429,6 +538,38 @@ onMounted(() => {
     /function restoreSavedPosition\(player: HTMLAudioElement\) \{[\s\S]*?\n\}\r?\n\r?\n(?=function startFirstTrack)/,
     '',
   )
+  if (!source.includes('function preferredVolume()')) {
+    source = source.replace(
+      'function startFirstTrack() {',
+      `function preferredVolume() {
+  const value = Number(playingStore.volume)
+  return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0.15
+}
+
+function startFirstTrack() {`,
+    )
+  }
+  source = source
+    .replace(/fadeVolume\(1\)/g, 'fadeVolume(preferredVolume())')
+    .replace(/player\.muted = userGestureUnlocked \? !playingStore\.enableVolume : true/g, 'player.muted = userGestureUnlocked ? !playingStore.enableVolume || preferredVolume() === 0 : true')
+    .replace(/player\.muted = !playingStore\.enableVolume(?! \|\| preferredVolume)/g, 'player.muted = !playingStore.enableVolume || preferredVolume() === 0')
+  if (!source.includes('watch(() => playingStore.volume')) {
+    source = source.replace(
+      '  watch(() => playingStore.currentId, syncPlayback)',
+      `  watch(() => playingStore.currentId, syncPlayback)
+  watch(() => playingStore.volume, () => {
+    const player = audioPlayer.value
+    if (!player || !playingStore.playing)
+      return
+    if (volumeFadeFrame !== undefined) {
+      cancelAnimationFrame(volumeFadeFrame)
+      volumeFadeFrame = undefined
+    }
+    player.volume = preferredVolume()
+    player.muted = !playingStore.enableVolume || preferredVolume() === 0
+  })`,
+    )
+  }
   if (!source.includes('let initialTrackSelected = false')) {
     source = source.replace(
       'const volumeFadeDuration = 1600',
