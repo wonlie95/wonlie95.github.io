@@ -1,0 +1,37 @@
+[
+  {
+    "title": "キミの记忆",
+    "author": "目黒将司",
+    "pic": "https://p2.music.126.net/Qb8n8ivhal4qRQo8s-Z1sA==/636617232494050.jpg",
+    "url": "https://meting-api-ten.vercel.app/api?server=netease&type=url&id=402249",
+    "lrc": "https://meting-api-ten.vercel.app/api?server=netease&type=lrc&id=402249"
+  },
+  {
+    "title": "your love is a drug",
+    "author": "Garoad",
+    "pic": "https://p2.music.126.net/L_rmMaa25cKTv6vDuLJUwQ==/18582846022300942.jpg",
+    "url": "https://meting-api-ten.vercel.app/api?server=netease&type=url&id=441491915",
+    "lrc": "https://meting-api-ten.vercel.app/api?server=netease&type=lrc&id=441491915"
+  },
+  {
+    "title": "snowfall",
+    "author": "Garoad",
+    "pic": "https://p2.music.126.net/L_rmMaa25cKTv6vDuLJUwQ==/18582846022300942.jpg",
+    "url": "https://meting-api-ten.vercel.app/api?server=netease&type=url&id=441491903",
+    "lrc": "https://meting-api-ten.vercel.app/api?server=netease&type=lrc&id=441491903"
+  },
+  {
+    "title": "every day is night",
+    "author": "Garoad",
+    "pic": "https://p2.music.126.net/L_rmMaa25cKTv6vDuLJUwQ==/18582846022300942.jpg",
+    "url": "https://meting-api-ten.vercel.app/api?server=netease&type=url&id=441491887",
+    "lrc": "https://meting-api-ten.vercel.app/api?server=netease&type=lrc&id=441491887"
+  },
+  {
+    "title": "忘れじの言の葉",
+    "author": "安次嶺希和子",
+    "pic": "https://p2.music.126.net/EnzRjx6TAtWsVKohfRm99w==/1373290038991137.jpg",
+    "url": "https://meting-api-ten.vercel.app/api?server=netease&type=url&id=432698934",
+    "lrc": "https://meting-api-ten.vercel.app/api?server=netease&type=lrc&id=432698934"
+  }
+]

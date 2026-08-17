@@ -45,5 +45,11 @@
     "theme-shokax-anime": "^0.0.8",
     "twikoo": "^1.6.44",
     "vue": "^3.5.18"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "5.2.3",
+    "typescript": "5.8.3",
+    "vite": "6.3.3",
+    "vite-plugin-dts": "4.5.3"
   }
 }

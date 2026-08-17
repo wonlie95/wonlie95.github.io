@@ -5,6 +5,7 @@
 // freeze bottom-of-page interaction.
 const fs = require('fs')
 const path = require('path')
+const { spawnSync } = require('child_process')
 
 const target = path.join(
   __dirname,
@@ -41,15 +42,22 @@ const head = path.join(
   'head_com.pug'
 )
 const layoutRoot = path.join(__dirname, '..', 'node_modules', 'hexo-theme-shokax', 'layout')
+const nyxPlayerRoot = path.join(__dirname, '..', 'node_modules', 'nyx-player')
+const nyxPlayerCss = path.join(nyxPlayerRoot, 'dist', 'nyx-player.css')
+const nyxMainPlayer = path.join(nyxPlayerRoot, 'src', 'NyxPlayer.vue')
 const nyxAudioPlayer = path.join(
-  __dirname,
-  '..',
-  'node_modules',
-  'nyx-player',
+  nyxPlayerRoot,
   'src',
   'components',
   'AudioPlayer.vue'
 )
+const nyxAudioCover = path.join(nyxPlayerRoot, 'src', 'components', 'preview', 'AudioCover.vue')
+const nyxMetingConstants = path.join(nyxPlayerRoot, 'src', 'components', 'metingapi', 'constants.ts')
+const nyxPlaylist = path.join(nyxPlayerRoot, 'src', 'components', 'metingapi', 'playlist.ts')
+const nyxLyric = path.join(nyxPlayerRoot, 'src', 'components', 'metingapi', 'lrc.ts')
+const nyxMusicLyric = path.join(nyxPlayerRoot, 'src', 'components', 'preview', 'info', 'MusicLRC.vue')
+const nyxPresets = path.join(nyxPlayerRoot, 'src', 'presets.ts')
+const nyxPlaylistSnapshot = path.join(__dirname, '..', 'source', 'assets', 'nyx-playlist-12584824470.json')
 const themeColor = path.join(
   __dirname,
   '..',
@@ -62,6 +70,17 @@ const themeColor = path.join(
   'themeColor.ts'
 )
 const mainLayout = path.join(layoutRoot, '_partials', 'layout.pug')
+const siteInitSource = path.join(
+  __dirname,
+  '..',
+  'node_modules',
+  'hexo-theme-shokax',
+  'source',
+  'js',
+  '_app',
+  'pjax',
+  'siteInit.ts'
+)
 
 const original = `  if (__shokax_waline__) {
     import('../components/comments').then(async ({walineRecentComments}) => {
@@ -152,8 +171,31 @@ if (fs.existsSync(handles)) {
 // playlist in the background so the shell opens immediately on every page.
 if (fs.existsSync(nyxAudioPlayer)) {
   let source = fs.readFileSync(nyxAudioPlayer, 'utf8')
-  const backgroundPlaylistFetch = `if (!playingStore.playlists.some(playlist => playlist.playlist.length > 0)) {
-  // Discard an empty list persisted by a previous interrupted request.
+  const originalNyxSource = source
+  const cachedPlaylistCondition = `const playlistCacheUsesBrokenAPI = playingStore.playlists.some(playlist =>
+  playlist.playlist.some(song => song.url?.includes('api.injahow.cn') || song.url?.includes('meting.mikus.ink')),
+)
+if (playlistCacheUsesBrokenAPI || !playingStore.playlists.some(playlist => playlist.playlist.length > 0)) {`
+  source = source.replace(
+    "playlist.playlist.some(song => song.url?.includes('api.injahow.cn'))",
+    "playlist.playlist.some(song => song.url?.includes('api.injahow.cn') || song.url?.includes('meting.mikus.ink'))",
+  )
+  source = source.replace(
+    "if (event.target instanceof Element && event.target.closest('#playBtn'))\n      return",
+    `if (event.target instanceof Element) {
+      const originalPlayButton = event.target.closest(
+        '#playBtn, [class*="play-circle-fill"], [class*="pause-circle-fill"]',
+      )
+      if (originalPlayButton)
+        return
+    }`,
+  )
+  source = source.replace(
+    'if (!playingStore.playlists.some(playlist => playlist.playlist.length > 0)) {',
+    cachedPlaylistCondition,
+  )
+  const backgroundPlaylistFetch = `${cachedPlaylistCondition}
+  // Discard an empty or obsolete list persisted by a previous request.
   playingStore.playlists.splice(0)
   const requests = props.playlistURLs.map(async (url, index) => {
     const playlist = new PlayList(url.url, url.name, index)
@@ -161,7 +203,11 @@ if (fs.existsSync(nyxAudioPlayer)) {
     playlist.parserURL()
     await playlist.fetchPlaylist()
   })
-  Promise.allSettled(requests).then(() => {
+  Promise.allSettled(requests).then((results) => {
+    results.forEach((result) => {
+      if (result.status === 'rejected')
+        console.error('Nyx playlist fetch failed:', result.reason)
+    })
     // Start from the first song as soon as the remote playlist is ready.
     if (!startFirstTrack())
       playingStore.currentId++
@@ -184,7 +230,11 @@ if (fs.existsSync(nyxAudioPlayer)) {
     // Refresh computed song data after the remote playlists settle.
     playingStore.currentId++
   })`
-  const autoplayFirstWhenReady = `  Promise.allSettled(requests).then(() => {
+  const autoplayFirstWhenReady = `  Promise.allSettled(requests).then((results) => {
+    results.forEach((result) => {
+      if (result.status === 'rejected')
+        console.error('Nyx playlist fetch failed:', result.reason)
+    })
     // Start from the first song as soon as the remote playlist is ready.
     if (!startFirstTrack())
       playingStore.currentId++
@@ -193,6 +243,15 @@ if (fs.existsSync(nyxAudioPlayer)) {
     source = source.replace(oldPlaylistReady, autoplayFirstWhenReady)
     fs.writeFileSync(nyxAudioPlayer, source)
   }
+  source = source.replace(
+    'Promise.allSettled(requests).then(() => {\n    // Start from the first song',
+    `Promise.allSettled(requests).then((results) => {
+    results.forEach((result) => {
+      if (result.status === 'rejected')
+        console.error('Nyx playlist fetch failed:', result.reason)
+    })
+    // Start from the first song`,
+  )
 
   const originalPlaybackWatcher = `onMounted(() => {
   watch(() => playingStore.currentId, async () => {
@@ -209,10 +268,11 @@ if (fs.existsSync(nyxAudioPlayer)) {
     }
   })
 })`
-  const autoplayWatcher = `let resumeOnFirstGesture: (() => void) | undefined
+  const autoplayWatcher = `let resumeOnFirstGesture: ((event: Event) => void) | undefined
 let userGestureUnlocked = false
 let volumeFadeFrame: number | undefined
 const volumeFadeDuration = 1600
+let initialTrackSelected = false
 const gestureEvents = ['pointerdown', 'touchstart', 'keydown', 'click'] as const
 
 function fadeVolume(target: number, done?: () => void) {
@@ -242,11 +302,17 @@ function startFirstTrack() {
   const firstPlaylist = playingStore.playlists[0]
   if (!firstPlaylist?.playlist?.length)
     return false
-  playingStore.currentPlaylistIndex = 0
-  firstPlaylist.index = 0
-  playingStore.currentTime = 0
-  if (audioPlayer.value)
-    audioPlayer.value.currentTime = 0
+  // A new document always begins with the first song. Seamless navigation
+  // keeps this player instance alive, so later page changes do not reset it.
+  if (!initialTrackSelected) {
+    playingStore.currentPlaylistIndex = 0
+    firstPlaylist.index = 0
+    playingStore.currentTime = 0
+    playingStore.lastPage = window.location.pathname
+    if (audioPlayer.value)
+      audioPlayer.value.currentTime = 0
+    initialTrackSelected = true
+  }
   playingStore.playing = true
   playingStore.currentId++
   return true
@@ -262,9 +328,19 @@ function disarmFirstGesturePlayback() {
 function armFirstGesturePlayback() {
   if (resumeOnFirstGesture)
     return
-  resumeOnFirstGesture = () => {
+  resumeOnFirstGesture = (event: Event) => {
     disarmFirstGesturePlayback()
     userGestureUnlocked = true
+    // The theme play button toggles the store during bubbling. Let its own
+    // handler own that click, otherwise this capture handler starts and the
+    // button immediately pauses the same track.
+    if (event.target instanceof Element) {
+      const originalPlayButton = event.target.closest(
+        '#playBtn, [class*="play-circle-fill"], [class*="pause-circle-fill"]',
+      )
+      if (originalPlayButton)
+        return
+    }
     if (!playingStore.currentSong)
       startFirstTrack()
     playingStore.playing = true
@@ -349,6 +425,274 @@ onMounted(() => {
       fs.writeFileSync(nyxAudioPlayer, source)
     }
   }
+  source = source.replace(
+    /function restoreSavedPosition\(player: HTMLAudioElement\) \{[\s\S]*?\n\}\r?\n\r?\n(?=function startFirstTrack)/,
+    '',
+  )
+  if (!source.includes('let initialTrackSelected = false')) {
+    source = source.replace(
+      'const volumeFadeDuration = 1600',
+      'const volumeFadeDuration = 1600\nlet initialTrackSelected = false',
+    )
+  }
+  source = source.replace(
+    /function startFirstTrack\(\) \{[\s\S]*?\n\}(?=\r?\n\r?\nfunction disarmFirstGesturePlayback)/,
+    `function startFirstTrack() {
+  const firstPlaylist = playingStore.playlists[0]
+  if (!firstPlaylist?.playlist?.length)
+    return false
+  // A new document always begins with the first song. Seamless navigation
+  // keeps this player instance alive, so later page changes do not reset it.
+  if (!initialTrackSelected) {
+    playingStore.currentPlaylistIndex = 0
+    firstPlaylist.index = 0
+    playingStore.currentTime = 0
+    playingStore.lastPage = window.location.pathname
+    if (audioPlayer.value)
+      audioPlayer.value.currentTime = 0
+    initialTrackSelected = true
+  }
+  playingStore.playing = true
+  playingStore.currentId++
+  return true
+}`,
+  )
+  if (source !== originalNyxSource)
+    fs.writeFileSync(nyxAudioPlayer, source)
+}
+
+if (fs.existsSync(nyxMetingConstants)) {
+  let source = fs.readFileSync(nyxMetingConstants, 'utf8')
+  source = source.replace(
+    /https:\/\/(?:api\.injahow\.cn\/meting\/|meting\.mikus\.ink\/api)/,
+    "https://meting-api-ten.vercel.app/api",
+  )
+  fs.writeFileSync(nyxMetingConstants, source)
+}
+
+if (fs.existsSync(nyxPlaylist)) {
+  let source = fs.readFileSync(nyxPlaylist, 'utf8')
+  source = source.replace(
+    'const res = await fetch(`${METING_API}?type=${this.accessibleURL.type}&id=${this.accessibleURL.id}&server=${this.accessibleURL.provider}`)\n    const songs',
+    `const res = await fetch(\`${'${METING_API}'}?type=${'${this.accessibleURL.type}'}&id=${'${this.accessibleURL.id}'}&server=${'${this.accessibleURL.provider}'}\`)
+    const contentType = res.headers.get('content-type') ?? ''
+    if (!res.ok || !contentType.includes('application/json'))
+      throw new Error(\`Meting playlist request failed: ${'${res.status}'} ${'${contentType}'}\`)
+    const songs`,
+  )
+  source = source.replace(
+    'this.playlist = await res.json() as APIResponse[]',
+    `const songs = await res.json() as Array<APIResponse & { title?: string, author?: string }>
+    this.playlist = songs.map(song => ({
+      ...song,
+      name: song.name ?? song.title ?? '',
+      artist: song.artist ?? song.author ?? '',
+    }))`,
+  )
+  const simplePlaylistRequest = /    const res = await fetch\(`\$\{METING_API\}[^\n]+\n(?:    .*\n)*?    this\.playlist = songs\.map\(song => \(\{\n      \.\.\.song,\n      name: song\.name \?\? song\.title \?\? '',\n      artist: song\.artist \?\? song\.author \?\? '',\n    \}\)\)/
+  if (!source.includes('const maxAttempts = 3')) {
+    source = source.replace(simplePlaylistRequest, `    const endpoint = \`${'${METING_API}'}?type=${'${this.accessibleURL.type}'}&id=${'${this.accessibleURL.id}'}&server=${'${this.accessibleURL.provider}'}\`
+    const maxAttempts = 3
+    let lastError: unknown
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const response = typeof fetch === 'function'
+          ? await fetch(endpoint).then(async res => ({
+              ok: res.ok,
+              status: res.status,
+              contentType: res.headers.get('content-type') ?? '',
+              data: await res.json(),
+            }))
+          : await new Promise<{ ok: boolean, status: number, contentType: string, data: unknown }>((resolve, reject) => {
+              const xhr = new XMLHttpRequest()
+              xhr.open('GET', endpoint)
+              xhr.timeout = 20000
+              xhr.onload = () => {
+                try {
+                  resolve({
+                    ok: xhr.status >= 200 && xhr.status < 300,
+                    status: xhr.status,
+                    contentType: xhr.getResponseHeader('content-type') ?? '',
+                    data: JSON.parse(xhr.responseText),
+                  })
+                }
+                catch (error) {
+                  reject(error)
+                }
+              }
+              xhr.onerror = () => reject(new Error('Meting playlist network error'))
+              xhr.ontimeout = () => reject(new Error('Meting playlist request timed out'))
+              xhr.send()
+            })
+        if (!response.ok || !response.contentType.includes('application/json'))
+          throw new Error(\`Meting playlist request failed: ${'${response.status}'} ${'${response.contentType}'}\`)
+        const songs = response.data as Array<APIResponse & { title?: string, author?: string }>
+        this.playlist = songs.map(song => ({
+          ...song,
+          name: song.name ?? song.title ?? '',
+          artist: song.artist ?? song.author ?? '',
+        }))
+        return
+      }
+      catch (error) {
+        lastError = error
+        if (attempt < maxAttempts)
+          await new Promise(resolve => setTimeout(resolve, 750 * attempt))
+      }
+    }
+    throw lastError`)
+  }
+  source = source
+    .replace(
+      /    const requestEndpoints = this\.accessibleURL\.provider[\s\S]*?    const maxAttempts = 3/,
+      '    const maxAttempts = 3',
+    )
+    .replace(
+      '        const requestEndpoint = requestEndpoints[Math.min(attempt - 1, requestEndpoints.length - 1)]\n',
+      '',
+    )
+    .replace('await fetch(requestEndpoint)', 'await fetch(endpoint)')
+    .replace("xhr.open('GET', requestEndpoint)", "xhr.open('GET', endpoint)")
+
+  source = source.replace(
+    /    \/\/ CODEX_STATIC_PLAYLIST_START[\s\S]*?    \/\/ CODEX_STATIC_PLAYLIST_END\n/,
+    '',
+  )
+  if (fs.existsSync(nyxPlaylistSnapshot)) {
+    const snapshot = JSON.parse(fs.readFileSync(nyxPlaylistSnapshot, 'utf8'))
+    const embeddedPlaylist = JSON.stringify(snapshot)
+    source = source.replace(
+      '    const endpoint = `${METING_API}?type=${this.accessibleURL.type}&id=${this.accessibleURL.id}&server=${this.accessibleURL.provider}`',
+      `    // CODEX_STATIC_PLAYLIST_START
+    if (this.accessibleURL.provider === 'netease' && this.accessibleURL.type === 'playlist' && this.accessibleURL.id === '12584824470') {
+      const songs = ${embeddedPlaylist} as Array<APIResponse & { title?: string, author?: string }>
+      this.playlist = songs.map(song => ({
+        ...song,
+        name: song.name ?? song.title ?? '',
+        artist: song.artist ?? song.author ?? '',
+      }))
+      return
+    }
+    // CODEX_STATIC_PLAYLIST_END
+    const endpoint = \`${'${METING_API}'}?type=${'${this.accessibleURL.type}'}&id=${'${this.accessibleURL.id}'}&server=${'${this.accessibleURL.provider}'}\``,
+    )
+  }
+  fs.writeFileSync(nyxPlaylist, source)
+}
+
+if (fs.existsSync(nyxPresets)) {
+  let source = fs.readFileSync(nyxPresets, 'utf8')
+  source = source
+    .replaceAll("playerBackground: 'alpha(#fdfdfd, 0.7)'", "playerBackground: 'rgba(253, 253, 253, 0.94)'")
+    .replaceAll("playerBackground: 'alpha(#22222, 0.7)'", "playerBackground: 'rgba(34, 34, 34, 0.94)'")
+    .replaceAll("playListLine: 'alpha(#000, 0.1)'", "playListLine: 'rgba(0, 0, 0, 0.1)'")
+    .replaceAll("playListLine: 'alpha(#fff, 0.1)'", "playListLine: 'rgba(255, 255, 255, 0.1)'")
+  fs.writeFileSync(nyxPresets, source)
+}
+
+if (fs.existsSync(nyxLyric)) {
+  let source = fs.readFileSync(nyxLyric, 'utf8')
+  source = source.replace(
+    'const timePattern = /\\[(\\d{2}):(\\d{2})(?:\\.(\\d{2,3}))?\\]/',
+    'const timePattern = /\\[(\\d{2}):(\\d{2})(?:\\.(\\d{1,3}))?\\]/',
+  )
+  source = source.replace(
+    "Number.parseInt(match[3]) / (match[3].length === 2 ? 100 : 1000)",
+    "Number.parseInt(match[3]) / 10 ** match[3].length",
+  )
+  source = source.replace(
+    "const lines = this.rawContent.split('\\n').filter(Boolean)",
+    "const lines = this.rawContent.split('\\n').filter(line => /\\[\\d{2}:\\d{2}(?:\\.\\d{1,3})?\\]/.test(line))",
+  )
+  fs.writeFileSync(nyxLyric, source)
+}
+
+if (fs.existsSync(nyxMusicLyric)) {
+  let source = fs.readFileSync(nyxMusicLyric, 'utf8')
+  source = source.replace(
+    'showLyric.value = lrcRes.value.slice(idx, Math.min(idx + 4, lrcRes.value.length))',
+    'showLyric.value = lrcRes.value.slice(idx, Math.min(idx + 1, lrcRes.value.length))',
+  )
+  if (!source.includes('max-height: 2.5rem')) {
+    source = source.replace(
+      /\.lrc p\.current \{[\s\S]*?\n\}/,
+      `.lrc {
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lrc p.current {
+  opacity: 1;
+  overflow: hidden;
+  height: auto !important;
+  max-height: 2.5rem;
+  line-height: 1.25rem !important;
+}`,
+    )
+  }
+  fs.writeFileSync(nyxMusicLyric, source)
+}
+
+if (fs.existsSync(nyxAudioCover)) {
+  let source = fs.readFileSync(nyxAudioCover, 'utf8')
+  source = source.replace(
+    /      <Transition name="blurx" mode="out-in">\r?\n        (<div :key="src"[\s\S]*?<\/div>)\r?\n      <\/Transition>/,
+    '      $1',
+  )
+  source = source
+    .replace(/@keyframes blur \{[\s\S]*?\r?\n\}\r?\n\r?\n/, '')
+    .replace(/\.blurx-enter-active \{[\s\S]*?\r?\n\}\r?\n\r?\n/, '')
+  fs.writeFileSync(nyxAudioCover, source)
+}
+
+if (fs.existsSync(nyxMainPlayer)) {
+  let source = fs.readFileSync(nyxMainPlayer, 'utf8')
+  const modeBlock = /const currentMode = ref<'light' \| 'dark'>\('light'\)[\s\S]*?else \{\n  currentMode\.value = 'light'\n\}/
+  source = source.replace(
+    modeBlock,
+    `const currentMode = ref<'light' | 'dark'>(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light')
+
+onMounted(() => {
+  const syncTheme = () => {
+    currentMode.value = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
+  }
+  syncTheme()
+  const observer = new MutationObserver(syncTheme)
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+})`,
+  )
+  fs.writeFileSync(nyxMainPlayer, source)
+}
+
+// ShokaX imports nyx-player's compiled dist entry. Rebuild that entry from the
+// patched Vue source instead of editing minified JavaScript by hand.
+if (fs.existsSync(nyxAudioPlayer)) {
+  // The npm package omits its UnoCSS config. Rebuilding must keep the freshly
+  // generated scoped component CSS (its data-v hashes match the new JS), then
+  // append only the publisher-built UnoCSS utility tail that contains icon
+  // masks, dimensions and positioning helpers.
+  const publishedNyxCss = fs.existsSync(nyxPlayerCss)
+    ? fs.readFileSync(nyxPlayerCss, 'utf8')
+    : undefined
+  const unoCssMarker = '*,:before,:after{--un-rotate:'
+  const publishedUnoCss = publishedNyxCss?.includes(unoCssMarker)
+    ? publishedNyxCss.slice(publishedNyxCss.indexOf(unoCssMarker))
+    : undefined
+  const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm'
+  const nyxBuild = spawnSync(npmCommand, ['run', 'build'], {
+    cwd: nyxPlayerRoot,
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+    stdio: 'inherit',
+  })
+  if (nyxBuild.status !== 0)
+    throw new Error(`nyx-player build failed with exit code ${nyxBuild.status}`)
+  if (publishedUnoCss) {
+    const generatedNyxCss = fs.readFileSync(nyxPlayerCss, 'utf8')
+    fs.writeFileSync(nyxPlayerCss, `${generatedNyxCss}\n${publishedUnoCss}`)
+  }
 }
 
 // Render the initial document in dark mode so there is no white flash before
@@ -360,7 +704,26 @@ if (fs.existsSync(mainLayout)) {
     "html(lang=page.language?page.language:config.language, style=theme.grayMode ? 'filter: grayscale(1);':'' )",
     "html(lang=page.language?page.language:config.language, data-theme='dark', style=theme.grayMode ? 'filter: grayscale(1);':'' )"
   )
+  if (!source.includes("script(src='/js/seamless-nav.js' defer)")) {
+    source = source.replace(
+      "        != _js('siteInit.js')",
+      "        != _js('siteInit.js')\n        script(src='/js/seamless-nav.js' defer)",
+    )
+  }
   fs.writeFileSync(mainLayout, source)
+}
+
+if (fs.existsSync(siteInitSource)) {
+  let source = fs.readFileSync(siteInitSource, 'utf8')
+  if (!source.includes('__shokaxSiteRefresh')) {
+    source = source.replace(
+      'const siteInit = async () => {',
+      `;(window as any).__shokaxSiteRefresh = siteRefresh
+
+const siteInit = async () => {`,
+    )
+  }
+  fs.writeFileSync(siteInitSource, source)
 }
 
 if (fs.existsSync(themeColor)) {
