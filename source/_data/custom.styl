@@ -8,6 +8,23 @@ html {
 }
 
 @media (min-width: 992px) {
+  // Give the profile copy enough room to honor only the author's explicit
+  // <br> line breaks. Keep the original .75rem gap beside the article body.
+  #sidebar,
+  #sidebar.affix,
+  #sidebar > .inner,
+  #sidebar.affix > .inner {
+    width: 27rem !important;
+  }
+
+  #main {
+    width: calc(100% - 27.75rem) !important;
+  }
+
+  #sidebar .overview .author .description {
+    white-space: nowrap;
+  }
+
   #sidebar,
   #sidebar.affix {
     overflow: visible;
