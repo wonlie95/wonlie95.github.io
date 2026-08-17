@@ -35,7 +35,7 @@
     "hexo-renderer-stylus": "^3.0.1",
     "hexo-server": "^3.0.0",
     "hexo-theme-shokax": "^0.5.4",
-    "hexo-util": "^3.3.0",
+    "hexo-util": "^4.0.0",
     "instantsearch.js": "^4.79.2",
     "js-yaml": "^4.1.0",
     "katex": "^0.16.22",
