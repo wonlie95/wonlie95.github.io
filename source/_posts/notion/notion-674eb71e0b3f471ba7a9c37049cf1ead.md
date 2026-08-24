@@ -3,7 +3,7 @@ title: "【教程】桌游模拟器 使用说明"
 date: 2022-11-02T13:03:00.000Z
 updated: 2026-08-12T15:55:00.000Z
 toc: true
-cover: "images/notion/674eb71e0b3f471ba7a9c37049cf1ead/061c4662845bd92d.png"
+cover: "images/notion/674eb71e0b3f471ba7a9c37049cf1ead/2c20dc97ab0e8182.png"
 categories:
   - "教程"
 tags:
@@ -15,15 +15,15 @@ notion_url: "https://app.notion.com/p/674eb71e0b3f471ba7a9c37049cf1ead"
 
 **第一步，打开桌游模拟器设置面板（主菜单也有齿轮选项可以开，不用进游戏中）**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/061c4662845bd92d.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/2c20dc97ab0e8182.png)
 
 **第二步，点击文件夹图标，在系统中打开文件夹。**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/f139575abb3e3607.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/d4e1d40840055cd8.png)
 
 **最后一步，将压缩包中与目录中对应的文件名的文件解压到****对应路径****中**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/33354a27e0abb8e5.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/0c3f26f1d0ac6396.png)
 
 ————————————————————————————————————————————————————————————————————————————————————————
 
@@ -31,22 +31,22 @@ notion_url: "https://app.notion.com/p/674eb71e0b3f471ba7a9c37049cf1ead"
 
 **第一步，打开桌游模拟器设置面板（主菜单也有齿轮选项可以开，不用进游戏中）**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/5f1526c0f108bbb4.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/6814dde4f4bee58a.png)
 
 **第二部，点击右上角X旁边的按钮。**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/c7adf335d1f9d708.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/d1587678a41d2456.png)
 
 **第三步，在创意工坊寻找社区的翻译（默认简体字是机翻，看起来蛮乐的，想用也可以用）**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/a36a6724e15004d3.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/30748ff0a64418d8.png)
 
 **第四步，订阅中文翻译**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/1855480018986f47.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/90d2a79f9bb2a9df.png)
 
 **第五步，回到第三步的界面选择中文翻译**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/ac1529b7b89e130a.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/33c3f2e767431c19.png)
 
 **最后点击确定就大功告成。**
