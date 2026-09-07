@@ -34,6 +34,12 @@ const request = async (url, options = {}) => {
 
 const escapeYaml = (value) => JSON.stringify(String(value ?? ''));
 const idOf = (page) => page.id.replaceAll('-', '');
+const permalinkFromDate = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) throw new Error(`Invalid Notion creation time: ${value}`);
+  const part = (number) => String(number).padStart(2, '0');
+  return `N${date.getUTCFullYear()}${part(date.getUTCMonth() + 1)}${part(date.getUTCDate())}${part(date.getUTCHours())}${part(date.getUTCMinutes())}/`;
+};
 const propertyText = (property) => (property?.title || property?.rich_text || []).map((item) => item.plain_text).join('');
 const propertyTags = (property) => (property?.multi_select || []).map((item) => item.name);
 const isExcludedFromBlog = (page) => propertyTags(page.properties['分类'])
@@ -147,7 +153,7 @@ for (const page of pages) {
   const frontMatter = [
     '---', `title: ${escapeYaml(title)}`, `date: ${date}`, `updated: ${page.last_edited_time || date}`, 'toc: true',
     ...(themeCover ? [`cover: ${escapeYaml(themeCover)}`] : []),
-    ...(settings.permalink ? [`permalink: ${settings.permalink}`] : []),
+    `permalink: ${settings.permalink || permalinkFromDate(date)}`,
     ...(settings.showIn ? ['show_in:', ...settings.showIn.map((location) => `  - ${location}`)] : []),
     'categories:', ...(tags.length ? tags.map((tag) => `  - ${escapeYaml(tag)}`) : ['  - 未分类']),
     'tags:', ...(tags.length ? tags.map((tag) => `  - ${escapeYaml(tag)}`) : ['  - Notion']),
