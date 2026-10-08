@@ -3,7 +3,7 @@ title: "【教程】我个人喜欢的AU处理人声步骤"
 date: 2021-11-18T04:28:00.000Z
 updated: 2026-08-12T15:55:00.000Z
 toc: true
-cover: "images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/80b017cff6fb3b6f.png"
+cover: "images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/0ba70154cc9c262e.png"
 permalink: N202111180428/
 categories:
   - "教程"
@@ -33,17 +33,17 @@ Output Gain:0
 控制减少-8左右
 
 1. **水果**右键点击数字-点击 **AU**属性节拍与小节 和水果同步节拍数字 打开节拍器 用剃刀工具对轨
-![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/80b017cff6fb3b6f.png)
+![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/0ba70154cc9c262e.png)
 
 1. VST-Fabfilter-Fab-Q（人声 EQ均衡器）
 90低切去喷麦，150低沉/明亮 500攻受 （ 调低变攻） 1800高音 5000去齿音 8000高通模式
 
-![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/1beb3fd69df04329.png)
+![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/540d83ff8171586e.png)
 
-![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/d50c3c77d55bc3e4.png)
+![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/cfd6e25f63a4f061.png)
 
 1. VST-Effect-BBE Sound-@H82谐音激励器（BBE谐音激励器）
-![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/d9dd270dcb2aa235.png)
+![图片](/images/notion/39bbe25ea1ee4130b4a2cf150d47daf1/0d6069d5c98b6547.png)
 
 92Hz低音调频 1.5低音混合 1.2kHz 高频混合
 
