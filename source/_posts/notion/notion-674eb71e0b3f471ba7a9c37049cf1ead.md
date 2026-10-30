@@ -3,7 +3,7 @@ title: "【教程】桌游模拟器 使用说明"
 date: 2022-11-02T13:03:00.000Z
 updated: 2026-08-12T15:55:00.000Z
 toc: true
-cover: "images/notion/674eb71e0b3f471ba7a9c37049cf1ead/6344eaa089771be3.png"
+cover: "images/notion/674eb71e0b3f471ba7a9c37049cf1ead/91dcb2f66b1dabd4.png"
 permalink: N202211021303/
 categories:
   - "教程"
@@ -16,15 +16,15 @@ notion_url: "https://app.notion.com/p/674eb71e0b3f471ba7a9c37049cf1ead"
 
 **第一步，打开桌游模拟器设置面板（主菜单也有齿轮选项可以开，不用进游戏中）**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/6344eaa089771be3.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/91dcb2f66b1dabd4.png)
 
 **第二步，点击文件夹图标，在系统中打开文件夹。**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/6662221e11f6ef87.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/d43179f64e21a679.png)
 
 **最后一步，将压缩包中与目录中对应的文件名的文件解压到****对应路径****中**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/d7ce9777b5b857a5.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/b36e4161adb40c90.png)
 
 ————————————————————————————————————————————————————————————————————————————————————————
 
@@ -32,22 +32,22 @@ notion_url: "https://app.notion.com/p/674eb71e0b3f471ba7a9c37049cf1ead"
 
 **第一步，打开桌游模拟器设置面板（主菜单也有齿轮选项可以开，不用进游戏中）**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/157aab329b8db4e1.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/445da266f4ebfc19.png)
 
 **第二部，点击右上角X旁边的按钮。**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/a0be5a6dc4cc5bf0.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/d8a480b9f9c6139b.png)
 
 **第三步，在创意工坊寻找社区的翻译（默认简体字是机翻，看起来蛮乐的，想用也可以用）**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/663b22f3161a8e6f.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/bc7ed9f2e3a3c918.png)
 
 **第四步，订阅中文翻译**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/aec4013f6063c1bd.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/8924ce7e0dd1fcab.png)
 
 **第五步，回到第三步的界面选择中文翻译**
 
-![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/ee9cce68e68ddd54.png)
+![图片](/images/notion/674eb71e0b3f471ba7a9c37049cf1ead/cef9cd1460e00c91.png)
 
 **最后点击确定就大功告成。**
